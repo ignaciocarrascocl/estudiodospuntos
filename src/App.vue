@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import FloatingMenu from './components/FloatingMenu.vue';
@@ -45,6 +45,30 @@ export default {
     const minTouchDistance = 50; // Distancia mínima para considerar un deslizamiento
     let touchTimeout = null;
 
+    // Función para obtener la altura real de la ventana visible
+    const getVisibleHeight = () => {
+      // Usar innerHeight para la mayoría de los casos
+      return window.innerHeight;
+    };
+
+    const updateSectionPositions = () => {
+      // Asegurarse de que las posiciones estén actualizadas incluso después de cambios de orientación
+      if (!sectionsContainer.value) return;
+
+      const height = getVisibleHeight();
+
+      // Aplicar altura a cada sección
+      const sections = sectionsContainer.value.children;
+      for (let i = 0; i < sections.length; i++) {
+        sections[i].style.height = `${height}px`;
+      }
+
+      // Actualizar posición actual
+      gsap.set(sectionsContainer.value, {
+        y: -((currentSection.value - 1) * height)
+      });
+    };
+
     const scrollToSection = (sectionNumber) => {
       if (isScrolling.value) return;
 
@@ -56,16 +80,29 @@ export default {
         detail: { section: sectionNumber }
       }));
 
-      // Use GSAP ScrollTo to create a scrolling effect
+      // Obtener altura actualizada
+      const height = getVisibleHeight();
+
+      // Use GSAP ScrollTo to create a scrolling effect with calculated height
       gsap.to(sectionsContainer.value, {
         duration: 1,
-        y: -((sectionNumber - 1) * window.innerHeight),
+        y: -((sectionNumber - 1) * height),
         ease: "power2.inOut",
         onComplete: () => {
           // Update URL with the section name instead of number
           const sectionNames = ['home', 'portfolio', 'services', 'contact'];
           history.pushState(null, null, `#${sectionNames[sectionNumber - 1]}`);
           isScrolling.value = false;
+
+          // Verificar si la posición es correcta y ajustar si es necesario
+          nextTick(() => {
+            const expectedY = -((sectionNumber - 1) * getVisibleHeight());
+            const currentY = gsap.getProperty(sectionsContainer.value, "y");
+
+            if (Math.abs(expectedY - currentY) > 5) {
+              gsap.set(sectionsContainer.value, { y: expectedY });
+            }
+          });
         }
       });
     };
@@ -131,17 +168,32 @@ export default {
     };
 
     const handleResize = () => {
-      // Immediately update position without animation when window is resized
-      gsap.set(sectionsContainer.value, {
-        y: -((currentSection.value - 1) * window.innerHeight)
-      });
+      // Esperar por un momento para que cualquier cambio de UI se estabilice
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+
+      resizeTimeout = setTimeout(() => {
+        updateSectionPositions();
+      }, 100);
     };
+
+    let resizeTimeout = null;
+    let orientationTimeout = null;
 
     onMounted(() => {
       // Set up event listeners
       window.addEventListener('wheel', handleWheel, { passive: false });
       window.addEventListener('keydown', handleKeyDown);
       window.addEventListener('resize', handleResize);
+
+      // Detectar cambios de orientación en dispositivos móviles
+      window.addEventListener('orientationchange', () => {
+        if (orientationTimeout) clearTimeout(orientationTimeout);
+
+        // Dar más tiempo para que se complete el cambio de orientación
+        orientationTimeout = setTimeout(() => {
+          updateSectionPositions();
+        }, 300);
+      });
 
       // Agregar eventos táctiles para dispositivos móviles
       window.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -155,28 +207,33 @@ export default {
         const sectionNumber = sectionNames.indexOf(section) + 1;
 
         if (sectionNumber >= 1 && sectionNumber <= totalSections) {
-          // Set initial position without animation
-          gsap.set(sectionsContainer.value, {
-            y: -((sectionNumber - 1) * window.innerHeight)
-          });
           currentSection.value = sectionNumber;
         }
       }
+
+      // Esperar a que todo se inicialice completamente
+      nextTick(() => {
+        // Esperar otro momento más para asegurar que las alturas sean correctas
+        setTimeout(() => {
+          updateSectionPositions();
+        }, 100);
+      });
     });
 
     onUnmounted(() => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
 
       // Eliminar eventos táctiles
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
 
-      if (touchTimeout) {
-        clearTimeout(touchTimeout);
-      }
+      if (touchTimeout) clearTimeout(touchTimeout);
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      if (orientationTimeout) clearTimeout(orientationTimeout);
     });
 
     return {
@@ -202,6 +259,8 @@ body {
 body {
   overflow: hidden;
   touch-action: none;
+  position: fixed; /* Añadido para evitar rebote/scroll en iOS */
+  width: 100%;
 }
 
 .app-container {
@@ -213,7 +272,12 @@ body {
 .sections-container {
   width: 100%;
   position: relative;
-  height: 100vh;
   will-change: transform;
+}
+
+/* Asegurar que cada sección ocupe exactamente la altura de la ventana */
+.sections-container > * {
+  width: 100%;
+  overflow: hidden;
 }
 </style>
