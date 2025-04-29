@@ -39,6 +39,12 @@ export default {
     let isScrolling = ref(false);
     const totalSections = 4;
 
+    // Variables para manejo de eventos táctiles
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const minTouchDistance = 50; // Distancia mínima para considerar un deslizamiento
+    let touchTimeout = null;
+
     const scrollToSection = (sectionNumber) => {
       if (isScrolling.value) return;
 
@@ -90,6 +96,40 @@ export default {
       }
     };
 
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      // Prevenir el comportamiento por defecto para evitar el rebote/scroll nativo
+      e.preventDefault();
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isScrolling.value) return;
+
+      touchEndY = e.changedTouches[0].clientY;
+      const touchDistance = touchEndY - touchStartY;
+
+      // Evitar múltiples eventos de deslizamiento consecutivos
+      if (touchTimeout) {
+        clearTimeout(touchTimeout);
+      }
+
+      touchTimeout = setTimeout(() => {
+        // Si el deslizamiento fue lo suficientemente largo
+        if (Math.abs(touchDistance) > minTouchDistance) {
+          if (touchDistance < 0 && currentSection.value < totalSections) {
+            // Deslizamiento hacia arriba, mostrar siguiente sección
+            scrollToSection(currentSection.value + 1);
+          } else if (touchDistance > 0 && currentSection.value > 1) {
+            // Deslizamiento hacia abajo, mostrar sección anterior
+            scrollToSection(currentSection.value - 1);
+          }
+        }
+      }, 50);
+    };
+
     const handleResize = () => {
       // Immediately update position without animation when window is resized
       gsap.set(sectionsContainer.value, {
@@ -102,6 +142,11 @@ export default {
       window.addEventListener('wheel', handleWheel, { passive: false });
       window.addEventListener('keydown', handleKeyDown);
       window.addEventListener('resize', handleResize);
+
+      // Agregar eventos táctiles para dispositivos móviles
+      window.addEventListener('touchstart', handleTouchStart, { passive: false });
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleTouchEnd, { passive: false });
 
       // Handle direct URL navigation with hash
       if (window.location.hash) {
@@ -123,6 +168,15 @@ export default {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('resize', handleResize);
+
+      // Eliminar eventos táctiles
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+
+      if (touchTimeout) {
+        clearTimeout(touchTimeout);
+      }
     });
 
     return {

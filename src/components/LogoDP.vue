@@ -142,46 +142,4 @@ export default {
 </script>
 
 <style scoped>
-.logo-container {
-  position: fixed;
-  /* Always fixed */
-  display: block;
-  cursor: pointer;
-  z-index: 9999;
-  margin: 0;
-}
-
-.logo-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-image {
-  width: 200px;
-  /* Default size */
-  height: auto;
-  transition: none;
-  /* Disable transitions to avoid flickering */
-}
-
-/* Set size constraints to prevent flicker */
-.logo-container.in-corner .logo-image {
-  width: 100px;
-  /* Match LOGO_CORNER_SIZE */
-}
-
-/* For smaller screens */
-@media (max-width: 768px) {
-  .logo-image {
-    width: 150px;
-    /* Match LOGO_CENTER_SIZE_MOBILE */
-  }
-
-  .logo-container.in-corner .logo-image {
-    width: 80px;
-    /* Match LOGO_CORNER_SIZE_MOBILE */
-  }
-}
 </style>

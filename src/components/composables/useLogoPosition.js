@@ -3,9 +3,9 @@ import { gsap } from 'gsap'
 export default function useLogoPosition(logoContainer, logoRef, isInCorner) {
   // Constants for logo sizes
   const LOGO_CORNER_SIZE = '100px'
-  const LOGO_CENTER_SIZE = '200px'
+  const LOGO_CENTER_SIZE = '100%'
   const LOGO_CORNER_SIZE_MOBILE = '80px'
-  const LOGO_CENTER_SIZE_MOBILE = '150px'
+  const LOGO_CENTER_SIZE_MOBILE = '100%'
 
   // Check if device is mobile
   const isMobile = () => window.innerWidth <= 768
