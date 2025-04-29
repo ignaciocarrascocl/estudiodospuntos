@@ -1,17 +1,48 @@
 import { createClient } from 'contentful'
 
-const client = createClient({
-  space: import.meta.env.VITE_CONTENTFUL_SPACE_ID,
-  accessToken: import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN,
-  environment: 'master',
-})
+// Verificación de credenciales presentes
+const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+const accessToken = import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN;
+
+// Cliente con manejo de errores
+let client;
+
+try {
+  // Solo crear cliente si tenemos las credenciales
+  if (!spaceId || !accessToken) {
+    console.error('Contentful credentials missing. Check environment variables.');
+    throw new Error('Contentful configuration incomplete');
+  }
+
+  client = createClient({
+    space: spaceId,
+    accessToken: accessToken,
+    environment: 'master',
+  });
+} catch (error) {
+  console.error('Failed to initialize Contentful client:', error);
+}
 
 export async function getPortfolioItems() {
   try {
+    // Verificar si el cliente se inicializó correctamente
+    if (!client) {
+      return [
+        {
+          id: 'error-1',
+          title: 'Error de configuración',
+          description: 'No se pudo conectar con Contentful. Contacta al administrador del sitio.',
+          featuredImage: '/images/placeholder.jpg',
+          otherImages: [],
+          url: null
+        }
+      ];
+    }
+
     const response = await client.getEntries({
-      content_type: 'portfafolio', // Asegúrate que coincida con el ID del tipo en Contentful
-      order: 'sys.createdAt' // Ordenar por fecha de creación o puedes usar otro campo
-    })
+      content_type: 'portfafolio',
+      order: 'sys.createdAt'
+    });
 
     return response.items.map(item => ({
       id: item.sys.id,
@@ -19,15 +50,24 @@ export async function getPortfolioItems() {
       description: item.fields.descripcin || '',
       featuredImage: item.fields.image_destacada?.fields?.file?.url
         ? `https:${item.fields.image_destacada.fields.file.url}`
-        : null,
+        : '/images/placeholder.jpg',
       otherImages: item.fields.otherImages
         ? item.fields.otherImages.map(img => `https:${img.fields.file.url}`)
         : [],
       url: item.fields.url || null
-    }))
+    }));
   } catch (error) {
-    console.error('Error al obtener datos de Contentful:', error)
-    return []
+    console.error('Error al obtener datos de Contentful:', error);
+    return [
+      {
+        id: 'error-1',
+        title: 'Error de conexión',
+        description: 'No se pudieron cargar los proyectos. Por favor intenta más tarde.',
+        featuredImage: '/images/placeholder.jpg',
+        otherImages: [],
+        url: null
+      }
+    ];
   }
 }
 
