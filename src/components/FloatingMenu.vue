@@ -1,258 +1,180 @@
 <template>
-  <div class="floating-menu">
-    <!-- Use v-show instead of v-if to allow exit animations -->
-    <transition name="fade">
-      <div class="menu-backdrop" v-show="menuOpen" @click="toggleMenu"></div>
-    </transition>
-
-    <div class="menu-content">
-      <div class="menu-items" :class="{ 'open': menuOpen }">
-        <a href="#home" @click.prevent="navigateTo(1)" :class="{ 'active': currentSection === 1 }"
-          :style="getMenuItemStyle(0)">Home</a>
-        <a href="#portfolio" @click.prevent="navigateTo(2)" :class="{ 'active': currentSection === 2 }"
-          :style="getMenuItemStyle(1)">Portafolio</a>
-        <a href="#services" @click.prevent="navigateTo(3)" :class="{ 'active': currentSection === 3 }"
-          :style="getMenuItemStyle(2)">Servicios</a>
-        <a href="#contact" @click.prevent="navigateTo(4)" :class="{ 'active': currentSection === 4 }"
-          :style="getMenuItemStyle(3)">Contacto</a>
-      </div>
-
-      <div class="menu-toggle" @click="toggleMenu" :class="{ 'menu-open': menuOpen }">
-        <div class="menu-icon" :class="{ 'menu-open': menuOpen }">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
+  <div class="logo-container" ref="logoContainer" :class="{ 'in-corner': isInCorner }">
+    <div class="logo-wrapper">
+      <!-- Logo A -->
+      <img
+        src="/images/logo-dp_a.png"
+        alt="Estudio Dos Puntos Logo"
+        class="logo-image"
+        :style="{ opacity: isLogoA ? 1 : 0, visibility: isLogoA ? 'visible' : 'hidden' }"
+        @click="handleLogoClick"
+        ref="logoRefA"
+        draggable="false"
+      />
+      <!-- Logo B -->
+      <img
+        src="/images/logo-dp_b.png"
+        alt="Estudio Dos Puntos Logo"
+        class="logo-image"
+        :style="{ opacity: !isLogoA ? 1 : 0, visibility: !isLogoA ? 'visible' : 'hidden' }"
+        @click="handleLogoClick"
+        ref="logoRefB"
+        draggable="false"
+      />
     </div>
   </div>
 </template>
 
-<style scoped>
-.floating-menu {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 1000;
-}
-
-.menu-content {
-  position: relative;
-  z-index: 1010;
-  /* Higher than backdrop */
-}
-
-.menu-toggle {
-  width: 60px;
-  height: 60px;
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
-}
-
-.menu-toggle:hover {
-  transform: scale(1.05);
-  background: black;
-}
-
-.menu-toggle.menu-open {
-  transform: rotate(180deg);
-  background: white;
-}
-
-.menu-icon {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 24px;
-  height: 18px;
-  transition: all 0.3s ease;
-}
-
-.menu-icon span {
-  display: block;
-  height: 3px;
-  width: 100%;
-  background: white;
-  transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
-  border-radius: 3px;
-}
-
-.menu-icon.menu-open span {
-  background: black;
-}
-
-.menu-icon.menu-open span:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 5px);
-}
-
-.menu-icon.menu-open span:nth-child(2) {
-  opacity: 0;
-  transform: translateX(15px);
-}
-
-.menu-icon.menu-open span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -5px);
-}
-
-.menu-items {
-  position: absolute;
-  bottom: 75px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-  z-index: 1020;
-  /* Highest z-index to stay on top */
-}
-
-.menu-items.open {
-  pointer-events: auto;
-}
-
-.menu-items a {
-  display: block;
-  padding: 12px 25px;
-  margin-bottom: 15px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  min-width: 140px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  transform: skew(20deg) translateX(50px);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Fix the text inside the parallelogram to remain normal */
-.menu-items a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  transform: translateX(-100%);
-  transition: transform 0.4s ease;
-  z-index: -1;
-}
-
-.menu-items a:hover::before {
-  transform: translateX(200%);
-}
-
-.menu-items a:hover {
-  background: rgba(0, 0, 0, 0.95);
-  transform: skew(20deg) translateX(-5px) scale(1.05);
-}
-
-.menu-items a.active {
-  background: white;
-  color: black;
-}
-
-.menu-items a.active:hover {
-  background: white;
-}
-
-.menu-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  z-index: 990;
-  /* No more fixed animation here, we'll use Vue transitions */
-}
-
-/* Vue transition classes for fade effect */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-@media (max-width: 768px) {
-  .menu-items a {
-    min-width: 120px;
-    padding: 10px 20px;
-  }
-}
-</style>
-
 <script>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import useThemeManagement from './composables/useThemeManagement';
+import useLogoPosition from './composables/useLogoPosition';
 
 export default {
-  emits: ['navigate'],
+  name: 'FloatingMenu',
   props: {
     currentSection: {
       type: Number,
       default: 1
     }
   },
+  emits: ['navigate'],
   setup(props, { emit }) {
-    const menuOpen = ref(false);
-    const animationDelay = 0.08; // Delay between each menu item in seconds
+    // State variables
+    const logoContainer = ref(null);
+    const logoRefA = ref(null);
+    const logoRefB = ref(null);
+    const isLogoA = ref(true);
+    const isInCorner = ref(false);
 
-    const toggleMenu = () => {
-      menuOpen.value = !menuOpen.value;
-    };
+    // Computed property to always point to the currently visible logo
+    const activeLogo = computed(() => isLogoA.value ? logoRefA.value : logoRefB.value);
 
-    // Dynamic styles for staggered animation
-    const getMenuItemStyle = (index) => {
-      if (menuOpen.value) {
-        return {
-          opacity: '1',
-          transform: 'translateX(0)',
-          transition: `all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${animationDelay * index}s`
-        };
+    // Get theme management functionality
+    const {
+      initializeSectionThemes,
+      changeThemeColor
+    } = useThemeManagement(isLogoA);
+
+    // Get logo positioning functionality - CRITICAL: Pass the activeLogo computed ref
+    const {
+      setupLogoPositioning,
+      moveLogoToCorner,
+      moveLogoToCenter,
+      handleResize,
+      maintainLogoSize
+    } = useLogoPosition(
+      logoContainer,
+      activeLogo,
+      isInCorner
+    );
+
+    // Función para cambiar el logo sin parpadeo
+    const handleLogoClick = () => {
+      // Si estamos en esquina, navegar a la sección 1
+      if (isInCorner.value) {
+        emit('navigate', 1);
       } else {
-        return {
-          opacity: '0',
-          transform: 'translateX(50px)',
-          transition: `all 0.3s ease ${0.1 * (3 - index)}s`
-        };
+        // Importante: Capturar el tamaño actual antes de cualquier cambio
+        const currentSize = activeLogo.value?.style.width || '100%';
+
+        // Aplicar el mismo tamaño a ambos logos antes del cambio
+        logoRefA.value.style.width = currentSize;
+        logoRefB.value.style.width = currentSize;
+
+        // Cambiar el tema (esto cambiará isLogoA.value)
+        changeThemeColor(props.currentSection);
+
+        // Asegurar que el tamaño se mantiene después del cambio
+        setTimeout(() => {
+          maintainLogoSize();
+        }, 10);
       }
     };
 
-    const navigateTo = (sectionNumber) => {
-      menuOpen.value = false;
+    // Watch for section changes
+    const handleSectionChange = (event) => {
+      const sectionNumber = event.detail?.section || props.currentSection;
 
-      // Use the parent's scrollToSection method
-      emit('navigate', sectionNumber);
-
-      // Alternative direct approach
-      const event = new CustomEvent('navigate-to-section', {
-        detail: { section: sectionNumber }
-      });
-      window.dispatchEvent(event);
+      // Position the logo based on current section
+      if (sectionNumber === 1) {
+        moveLogoToCenter();
+      } else {
+        moveLogoToCorner();
+      }
     };
 
+    // Setup and cleanup
+    onMounted(() => {
+      // Establecer el tamaño inicial de ambos logos
+      logoRefA.value.style.width = '100%';
+      logoRefB.value.style.width = '100%';
+
+      // Asegurar que el logo inactivo está completamente oculto desde el inicio
+      if (isLogoA.value) {
+        logoRefB.value.style.visibility = 'hidden';
+      } else {
+        logoRefA.value.style.visibility = 'hidden';
+      }
+
+      window.addEventListener('section-change', handleSectionChange);
+      window.addEventListener('resize', handleResize);
+
+      // Initialize section themes
+      initializeSectionThemes();
+
+      // Setup initial logo positioning
+      if (props.currentSection !== 1) {
+        isInCorner.value = true;
+      }
+
+      // Ensure proper initial positioning after DOM is fully rendered
+      setTimeout(() => {
+        setupLogoPositioning();
+      }, 50);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('section-change', handleSectionChange);
+      window.removeEventListener('resize', handleResize);
+    });
+
     return {
-      menuOpen,
-      toggleMenu,
-      navigateTo,
-      getMenuItemStyle
+      logoContainer,
+      logoRefA,
+      logoRefB,
+      handleLogoClick,
+      isLogoA,
+      isInCorner
     };
   }
 }
 </script>
+
+<style scoped>
+.logo-container {
+  position: fixed;
+  z-index: 100;
+  width: 100px; /* Default width */
+}
+
+.logo-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Ambas imágenes ocupan el 100% del contenedor */
+  height: auto;
+  cursor: pointer;
+  user-select: none;
+  /* Eliminar transiciones para evitar efectos de superposición */
+}
+</style>
