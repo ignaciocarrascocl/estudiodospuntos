@@ -117,7 +117,10 @@
 }
 
 .menu-items a {
-  display: block;
+  --p: 20px; /* Control the parallelogram shape */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 12px 25px;
   margin-bottom: 15px;
   background: rgba(0, 0, 0, 0.8);
@@ -125,16 +128,19 @@
   text-decoration: none;
   font-weight: bold;
   min-width: 140px;
+  min-height: 40px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   opacity: 0;
-  transform: skew(20deg) translateX(50px);
+  transform: translateX(50px);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  /* Apply clip-path for parallelogram shape */
+  clip-path: polygon(var(--p) 0, 100% 0, calc(100% - var(--p)) 100%, 0 100%);
 }
 
-/* Fix the text inside the parallelogram to remain normal */
+/* Gradient overlay effect */
 .menu-items a::before {
   content: '';
   position: absolute;
@@ -154,7 +160,7 @@
 
 .menu-items a:hover {
   background: rgba(0, 0, 0, 0.95);
-  transform: skew(20deg) translateX(-5px) scale(1.05);
+  transform: translateX(-5px) scale(1.05);
 }
 
 .menu-items a.active {
@@ -194,6 +200,7 @@
   .menu-items a {
     min-width: 120px;
     padding: 10px 20px;
+    --p: 15px; /* Smaller parallelogram effect on mobile */
   }
 }
 </style>

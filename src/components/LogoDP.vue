@@ -43,8 +43,7 @@ export default {
       setupLogoPositioning,
       moveLogoToCorner,
       moveLogoToCenter,
-      handleResize,
-      maintainLogoSize
+      handleResize
     } = useLogoPosition(
       logoContainer,
       logoRef,
@@ -54,7 +53,6 @@ export default {
     // Handle logo image load event
     const handleLogoLoad = () => {
       if (isChangingLogo.value) {
-        maintainLogoSize();
         isChangingLogo.value = false;
       }
     };
@@ -64,19 +62,12 @@ export default {
       // Set flag that we're changing the logo
       isChangingLogo.value = true;
 
-      // Immediately maintain size to avoid flicker
-      maintainLogoSize();
-
       // Let changeThemeColor toggle the logo state internally
       changeThemeColor(props.currentSection);
 
       // Update logo image
       currentLogo.value = isLogoA.value ? '/images/logo-dp_a.png' : '/images/logo-dp_b.png';
       currentLogoKey.value++; // Force re-render
-
-      // Apply size immediately and after a delay as a safety net
-      maintainLogoSize();
-      setTimeout(maintainLogoSize, 0);
     };
 
     // Watch for section changes
@@ -107,20 +98,6 @@ export default {
         isInCorner.value = true;
         setTimeout(() => setupLogoPositioning(), 100);
       }
-
-      // Watch for logo key changes
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'key') {
-            maintainLogoSize();
-          }
-        });
-      });
-
-      // Start observing once the ref is available
-      if (logoRef.value) {
-        observer.observe(logoRef.value, { attributes: true });
-      }
     });
 
     onUnmounted(() => {
@@ -142,4 +119,24 @@ export default {
 </script>
 
 <style scoped>
+.logo-container {
+  z-index: 1000;
+  transition: width 0.6s ease;
+}
+
+.logo-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.logo-image {
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+.logo-image:hover {
+  filter: brightness(1.1);
+}
 </style>

@@ -1,0 +1,9 @@
+// Importar Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+// Establecer la fuente Montserrat como fuente principal
+$family-sans-serif: 'Montserrat', sans-serif;
+$family-primary: $family-sans-serif;
+
+// Importar Bulma
+@import '~bulma/bulma';

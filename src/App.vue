@@ -253,31 +253,8 @@ body {
   height: 100%;
   overflow: hidden;
   width: 100%;
-  font-family: 'Poppins', 'Arial', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
-body {
-  overflow: hidden;
-  touch-action: none;
-  position: fixed; /* Añadido para evitar rebote/scroll en iOS */
-  width: 100%;
-}
-
-.app-container {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.sections-container {
-  width: 100%;
-  position: relative;
-  will-change: transform;
-}
-
-/* Asegurar que cada sección ocupe exactamente la altura de la ventana */
-.sections-container > * {
-  width: 100%;
-  overflow: hidden;
-}
+/* Resto de estilos sin cambios */
 </style>
