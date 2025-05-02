@@ -49,7 +49,6 @@ export default {
       if (!app) return;
       gridLines.forEach(line => {
         app.stage.removeChild(line);
-        line.destroy();
       });
       gridLines = [];
       createGridData();

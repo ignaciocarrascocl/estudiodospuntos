@@ -61,13 +61,12 @@
 
         <!-- Contact information section -->
         <div class="my-10">
-          <h4 class="text-xl font-medium mb-4" :style="{ color: sectionStyle.color }">Información de contacto</h4>
           <div class="flex flex-col gap-4">
             <!-- Contact options grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Phone contact -->
               <a href="tel:+56992659949"
-                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                class="flex items-center p-2 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 :style="contactBoxStyle">
                 <span class="mr-3 text-2xl" :style="iconStyle">
                   <i class="bi bi-telephone"></i>
@@ -77,7 +76,7 @@
 
               <!-- WhatsApp contact -->
               <a href="https://wa.me/56992659949" target="_blank"
-                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                class="flex items-center p-2 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 :style="contactBoxStyle">
                 <span class="mr-3 text-2xl" :style="iconStyle">
                   <i class="bi bi-whatsapp"></i>
@@ -87,22 +86,22 @@
 
               <!-- LinkedIn - Ignacio -->
               <a href="https://www.linkedin.com/in/ignaciocarrascoh/" target="_blank"
-                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                class="flex items-center p-2 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 :style="contactBoxStyle">
                 <span class="mr-3 text-2xl" :style="iconStyle">
                   <i class="bi bi-linkedin"></i>
                 </span>
-                <p class="m-0 text-sm">Ignacio Carrasco - Director de Proyectos</p>
+                <p class="m-0 text-xs">Ignacio Carrasco - Director de Proyectos</p>
               </a>
 
               <!-- LinkedIn - Alejandra -->
               <a href="https://www.linkedin.com/in/alejandra-ram%C3%ADrez-moya-26b87b127/" target="_blank"
-                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                class="flex items-center p-2 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 :style="contactBoxStyle">
                 <span class="mr-3 text-2xl" :style="iconStyle">
                   <i class="bi bi-linkedin"></i>
                 </span>
-                <p class="m-0 text-sm">Alejandra Ramírez - Directora Creativa</p>
+                <p class="m-0 text-xs">Alejandra Ramírez - Directora Creativa</p>
               </a>
             </div>
           </div>
@@ -158,7 +157,7 @@ export default {
     }));
 
     // Form submission handler
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
       // Prevent default form submission if you want to handle it with AJAX
       // e.preventDefault();
 
