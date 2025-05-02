@@ -255,6 +255,8 @@ body {
   overflow: hidden !important;
   /* Important to override Bulma */
   width: 100%;
+  position: fixed;
+  /* This prevents browser address bar issues */
 }
 
 /* App container styles */
@@ -262,12 +264,36 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 /* Section container styles */
 .sections-container {
   width: 100%;
+  height: 100vh;
+  /* Use viewport height */
+  position: absolute;
+  will-change: transform;
+}
+
+/* Individual section styling */
+.sections-container>* {
+  width: 100%;
+  height: 100vh !important;
   position: relative;
+  overflow: auto;
+  /* Allow scrolling within sections if needed */
+}
+
+/* Add this for iOS Safari specific fix */
+@supports (-webkit-touch-callout: none) {
+
+  .sections-container,
+  .sections-container>* {
+    height: -webkit-fill-available !important;
+  }
 }
 
 /* Make sure Bulma doesn't limit our app width */
