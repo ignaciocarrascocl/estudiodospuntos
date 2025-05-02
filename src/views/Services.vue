@@ -1,10 +1,10 @@
 <template>
-  <section id="services" class="section is-fullheight is-flex is-align-items-center is-justify-content-center p-0"
-    data-section="3" :style="sectionStyle">
+  <!-- Remove the outer section tag - fullPage.js already provides a section container -->
+  <div class="services-content" :style="sectionStyle">
     <div class="container">
       <div class="content px-4 py-5">
-        <h1 class="title is-2 has-text-centered mb-3" :style="{ color: sectionStyle.color }">Servicios</h1>
-        <p class="subtitle is-5 has-text-centered mb-5" :style="{ color: sectionStyle.color }">
+        <h1 class="text-4xl font-bold text-center mb-3" :style="{ color: sectionStyle.color }">Servicios</h1>
+        <p class="text-xl text-center mb-5" :style="{ color: sectionStyle.color }">
           Impulsamos tu crecimiento con diseño estratégico y comunicación a medida.
         </p>
 
@@ -70,7 +70,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -170,8 +170,22 @@ export default {
       }
     };
 
+    // Handler for section-change events (when navigating between sections)
+    // REMOVED color-changing behavior from this handler
+    const handleSectionChange = (event) => {
+      // Now we only use this handler for other section-specific logic
+      // that doesn't involve changing colors
+      if (event.detail.section === 3) {
+        // Any section-specific logic that doesn't involve colors
+        // For example, you might want to pause/resume slider animations
+        // or refresh content when returning to this section
+      }
+    };
+
+    // Handler for theme-change events (when logo is clicked)
+    // This is now the ONLY place where colors should change
     const handleThemeChange = (event) => {
-      // Only update if it's for this section
+      // Check if this event is for this section
       if (event.detail.section === 3) {
         sectionStyle.value = {
           backgroundColor: event.detail.background,
@@ -180,33 +194,36 @@ export default {
       }
     };
 
-    // Handler for window resize
+    // Modified handler for window resize
     const handleResize = () => {
       if (sliderInstance.value) {
-        setTimeout(() => {
-          try {
-            // Update slides per view on resize
-            const slidesPerView = getSlidesPerView();
-            sliderInstance.value.options.slides.perView = slidesPerView;
-            sliderInstance.value.update();
-          } catch (err) {
-            console.error('Error updating after resize:', err);
-          }
-        }, 100);
+        try {
+          // Update slides per view on resize
+          const slidesPerView = getSlidesPerView();
+          sliderInstance.value.options.slides.perView = slidesPerView;
+          sliderInstance.value.update();
+        } catch (err) {
+          console.error('Error updating after resize:', err);
+        }
       }
     };
 
+    // Wait for fullPage.js to be initialized
     onMounted(() => {
+      // Listen for both section-change and theme-change events
+      window.addEventListener('section-change', handleSectionChange);
       window.addEventListener('theme-change', handleThemeChange);
       window.addEventListener('resize', handleResize);
 
-      // Initialize slider after DOM is ready
+      // Longer delay to ensure fullPage.js is initialized first
       setTimeout(() => {
         initializeSlider();
-      }, 200);
+      }, 500); // Increased delay
     });
 
     onUnmounted(() => {
+      // Clean up both event listeners
+      window.removeEventListener('section-change', handleSectionChange);
       window.removeEventListener('theme-change', handleThemeChange);
       window.removeEventListener('resize', handleResize);
 
@@ -227,18 +244,23 @@ export default {
       totalSlides,
       nextSlide,
       prevSlide,
-      maxSlideIndex // Add this to return
+      maxSlideIndex
     };
   }
 }
 </script>
 
 <style scoped>
-section {
+/* Replace the section styling */
+.services-content {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   transition: background-color 0.5s, color 0.5s;
-  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Important - never let content overflow */
 }
 
 /* Override Bulma title colors to respect our dynamic theming */
@@ -255,12 +277,12 @@ section {
   padding: 0 40px;
   max-width: 100%;
   margin: 0 auto;
-  overflow: visible;
 }
 
-/* Make each slide take full height */
+/* Make each slide take consistent height without overflowing */
 .service-slide {
-  height: 450px;
+  min-height: 350px;
+  max-height: 450px;
   padding: 0 10px;
 }
 
@@ -299,7 +321,6 @@ section {
 
 .slider-arrow:hover {
   transform: scale(1.1);
-  opacity: 1;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -312,18 +333,14 @@ section {
   cursor: not-allowed;
 }
 
-/* Make the container scrollable on very small heights */
-@media screen and (max-height: 700px) {
-  section {
-    align-items: flex-start;
-    padding-top: 2rem;
-  }
-}
-
 /* Adjust for mobile */
 @media screen and (max-width: 768px) {
+  .services-content {
+    padding-top: 1rem;
+  }
+
   .content {
-    padding: 1rem;
+    padding: 1rem !important;
   }
 
   .services-slider-container {
@@ -331,7 +348,8 @@ section {
   }
 
   .service-slide {
-    height: 400px;
+    min-height: 300px;
+    max-height: 400px;
   }
 
   .slider-arrow {

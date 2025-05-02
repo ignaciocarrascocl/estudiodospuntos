@@ -1,39 +1,41 @@
 <template>
-  <section id="portfolio" class="section is-fullheight is-flex is-align-items-center is-justify-content-center p-0"
-    data-section="2" :style="sectionStyle">
-    <div class="container">
+  <div class="w-full h-full flex items-center justify-center overflow-hidden transition-colors duration-500"
+    :style="sectionStyle">
+    <div class="container mx-auto">
       <div class="px-3">
-        <h1 class="title is-2 has-text-centered mb-3" :style="{ color: sectionStyle.color }">Portafolio</h1>
-        <p class="subtitle is-5 has-text-centered mb-5" :style="{ color: sectionStyle.color }">Nuestros proyectos
-          más
-          recientes
+        <h1 class="text-4xl font-bold text-center mb-3" :style="{ color: sectionStyle.color }">Portafolio</h1>
+        <p class="text-xl text-center mb-5" :style="{ color: sectionStyle.color }">
+          Nuestros proyectos más recientes
         </p>
 
         <!-- Loader mientras se cargan los proyectos -->
-        <div v-if="loading" class="is-flex is-justify-content-center is-align-items-center py-6">
-          <div class="loader" :style="{ borderTopColor: sectionStyle.color }"></div>
+        <div v-if="loading" class="flex justify-center items-center py-6">
+          <div class="w-12 h-12 rounded-full border-4 border-opacity-20 animate-spin"
+            :style="{ borderTopColor: sectionStyle.color }"></div>
         </div>
 
-        <div v-else-if="error" class="notification is-danger">
+        <div v-else-if="error" class="bg-red-500 text-white p-4 rounded">
           {{ error }}
         </div>
 
         <!-- Keen Slider for Portfolio Items -->
-        <div v-else class="portfolio-slider-container">
+        <div v-else class="relative w-full px-10 max-w-full mx-auto overflow-visible">
           <!-- Main slider -->
           <div ref="container" class="keen-slider">
             <div v-for="(project) in portfolioItems" :key="project.id"
-              class="keen-slider__slide portfolio-item box light-card p-3">
+              class="keen-slider__slide min-h-[350px] max-h-[450px] px-2.5 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-3 shadow-md flex flex-col transition-all duration-500 hover:-translate-y-1 hover:shadow-lg">
               <!-- Imagen -->
-              <figure class="image is-5by3 mb-3">
-                <img :src="project.featuredImage" :alt="project.title" @error="handleImageError" class="has-ratio">
+              <figure class="flex-none w-full rounded-md overflow-hidden shadow-md mb-3 aspect-[5/3]">
+                <img :src="project.featuredImage" :alt="project.title" @error="handleImageError"
+                  class="object-cover w-full h-full transition-transform duration-500 hover:scale-105">
               </figure>
 
-              <!-- Título del proyecto debajo de la imagen -->
-              <div class="project-info">
-                <h3 class="title is-size-5 mb-3" :style="{ color: sectionStyle.color }">{{ project.title }}</h3>
-                <p class="subtitle is-size-7" :style="{ color: sectionStyle.color }">{{ project.description }}</p>
-                <a v-if="project.url" :href="project.url" target="_blank" class="button is-small mt-3"
+              <!-- Project info -->
+              <div class="flex-1 flex flex-col">
+                <h3 class="text-xl font-semibold mb-3" :style="{ color: sectionStyle.color }">{{ project.title }}</h3>
+                <p class="text-xs" :style="{ color: sectionStyle.color }">{{ project.description }}</p>
+                <a v-if="project.url" :href="project.url" target="_blank"
+                  class="mt-auto px-4 py-2 rounded text-sm transition-all duration-300 hover:shadow-md"
                   :style="{ backgroundColor: sectionStyle.color, color: sectionStyle.backgroundColor }">
                   Ver proyecto
                 </a>
@@ -42,22 +44,25 @@
           </div>
 
           <!-- Navigation buttons -->
-          <div v-if="portfolioItems.length > 1" class="slider-controls-container">
-            <!-- Navigation arrows only - dot indicators removed -->
-            <div class="slider-arrows">
-              <button class="slider-arrow" @click="prevSlide" :disabled="currentSlideIndex === 0" :style="{
-                color: sectionStyle.backgroundColor,
-                backgroundColor: sectionStyle.color,
-                opacity: currentSlideIndex === 0 ? '0.5' : '1'
-              }">
+          <div v-if="portfolioItems.length > 1" class="flex justify-center mt-8 w-full">
+            <div class="flex justify-center gap-5">
+              <button
+                class="flex items-center justify-center w-11 h-11 rounded-full border-none cursor-pointer transition-all duration-300 text-xl shadow-md hover:scale-110 active:scale-95"
+                @click="prevSlide" :disabled="currentSlideIndex === 0" :style="{
+                  color: sectionStyle.backgroundColor,
+                  backgroundColor: sectionStyle.color,
+                  opacity: currentSlideIndex === 0 ? '0.5' : '1'
+                }">
                 <i class="bi bi-chevron-left"></i>
               </button>
 
-              <button class="slider-arrow" @click="nextSlide" :disabled="currentSlideIndex >= maxSlideIndex" :style="{
-                color: sectionStyle.backgroundColor,
-                backgroundColor: sectionStyle.color,
-                opacity: currentSlideIndex >= maxSlideIndex ? '0.5' : '1'
-              }">
+              <button
+                class="flex items-center justify-center w-11 h-11 rounded-full border-none cursor-pointer transition-all duration-300 text-xl shadow-md hover:scale-110 active:scale-95"
+                @click="nextSlide" :disabled="currentSlideIndex >= maxSlideIndex" :style="{
+                  color: sectionStyle.backgroundColor,
+                  backgroundColor: sectionStyle.color,
+                  opacity: currentSlideIndex >= maxSlideIndex ? '0.5' : '1'
+                }">
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
@@ -65,11 +70,11 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed } from 'vue'; // Add computed here
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { getPortfolioItems } from '@/services/contentfulService';
 import KeenSlider from 'keen-slider';
 import 'keen-slider/keen-slider.min.css';
@@ -77,7 +82,7 @@ import 'keen-slider/keen-slider.min.css';
 export default {
   name: 'PortfolioView',
   setup() {
-    // Default colors
+    // Default colors - these will remain until changed by a theme-change event
     const sectionStyle = ref({
       backgroundColor: '#FF4B00',
       color: '#FFFFFF'
@@ -92,7 +97,7 @@ export default {
     const container = ref(null);
     const currentSlideIndex = ref(0);
 
-    // Initialize the Keen Slider
+    // Initialize the Keen Slider with settings that match Services
     const initializeSlider = () => {
       try {
         if (!container.value) {
@@ -101,11 +106,14 @@ export default {
 
         const slidesPerView = getSlidesPerView();
 
-        // Create the Keen Slider instance with consistent behavior
+        // Create the Keen Slider instance with settings matching Services
         const keenSliderInstance = new KeenSlider(container.value, {
           loop: false,
           mode: "snap",
           slides: { perView: slidesPerView, spacing: 20 },
+          dragSpeed: 1.5, // Make drag speed match Services
+          duration: 1000,  // Longer animation duration like Services
+          easing: (t) => t * (2 - t), // Smoother easing like Services
           created(slider) {
             sliderInstance.value = slider;
           },
@@ -123,15 +131,16 @@ export default {
       }
     };
 
-    // Determine how many slides to show based on screen width
+    // Determine how many slides to show based on screen width - match Services breakpoints
     const getSlidesPerView = () => {
       const width = window.innerWidth;
-      if (width < 768) return 1;
-      if (width < 1024) return 2;
-      return 3;
+      if (width < 640) return 1;      // Mobile
+      if (width < 1024) return 2;     // Tablet
+      if (width < 1280) return 3;     // Small desktop
+      return 4;                        // Large desktop
     };
 
-    // Navigation functions
+    // Navigation functions - Add animation flags
     const nextSlide = () => {
       if (sliderInstance.value) {
         try {
@@ -161,10 +170,11 @@ export default {
         if (portfolioItems.value.length === 0) {
           error.value = "No se encontraron proyectos. ¡Agrega algunos en Contentful!";
         } else {
-          // Initialize slider after DOM updates with items
+          // Initialize slider immediately after items are loaded
+          // Use a shorter timeout to match Services behavior
           setTimeout(() => {
             initializeSlider();
-          }, 500); // Longer timeout to ensure DOM is ready
+          }, 100);
         }
       } catch (err) {
         console.error('Error al cargar proyectos:', err);
@@ -174,7 +184,22 @@ export default {
       }
     };
 
+    // Handler for section-change events (when navigating between sections)
+    // REMOVED color-changing behavior from this handler
+    const handleSectionChange = (event) => {
+      // Now we only use this handler for other section-specific logic
+      // that doesn't involve changing colors
+      if (event.detail.section === 2) {
+        // Any section-specific logic that doesn't involve colors
+        // For example, you might want to pause/resume slider animations
+        // or refresh content when returning to this section
+      }
+    };
+
+    // Handler for theme-change events (when logo is clicked)
+    // This is now the ONLY place where colors should change
     const handleThemeChange = (event) => {
+      // Check if this event is for this section
       if (event.detail.section === 2) {
         sectionStyle.value = {
           backgroundColor: event.detail.background,
@@ -187,23 +212,24 @@ export default {
       e.target.src = '/images/placeholder.jpg';
     };
 
-    // Handler for window resize
+    // Improved resize handler to match Services behavior
     const handleResize = () => {
       if (sliderInstance.value) {
+        // Destroy and recreate slider on resize for better consistency with Services
+        try {
+          sliderInstance.value.destroy();
+        } catch (err) {
+          console.error('Error destroying slider:', err);
+        }
+
+        // Short timeout to ensure DOM is ready
         setTimeout(() => {
-          try {
-            // Update slides per view on resize
-            const slidesPerView = getSlidesPerView();
-            sliderInstance.value.options.slides.perView = slidesPerView;
-            sliderInstance.value.update();
-          } catch (err) {
-            console.error('Error updating after resize:', err);
-          }
-        }, 100);
+          initializeSlider();
+        }, 50);
       }
     };
 
-    // Add this computed property to calculate the maximum slide index
+    // Compute the maximum slide index
     const maxSlideIndex = computed(() => {
       if (!sliderInstance.value) return 0;
 
@@ -217,6 +243,8 @@ export default {
     });
 
     onMounted(() => {
+      // Listen for both types of events
+      window.addEventListener('section-change', handleSectionChange);
       window.addEventListener('theme-change', handleThemeChange);
       window.addEventListener('resize', handleResize);
 
@@ -225,6 +253,8 @@ export default {
     });
 
     onUnmounted(() => {
+      // Clean up both event listeners
+      window.removeEventListener('section-change', handleSectionChange);
       window.removeEventListener('theme-change', handleThemeChange);
       window.removeEventListener('resize', handleResize);
 
@@ -248,174 +278,46 @@ export default {
       currentSlideIndex,
       nextSlide,
       prevSlide,
-      maxSlideIndex // Add this line
+      maxSlideIndex
     };
   }
 }
 </script>
 
-<style scoped>
-section {
-  width: 100%;
-  height: 100vh;
-  transition: background-color 0.5s, color 0.5s;
-}
-
-.subtitle,
-.title {
-  transition: color 0.5s;
-  color: inherit !important;
-}
-
-/* Portfolio slider container - match Services styling */
-.portfolio-slider-container {
-  position: relative;
-  width: 100%;
-  padding: 0 40px;
-  max-width: 100%;
-  margin: 0 auto;
-  overflow: visible;
-}
-
-/* Slider controls - match Services styling */
-.slider-controls-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-  width: 100%;
-}
-
-.slider-arrows {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.slider-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1.25rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-.slider-arrow:hover {
-  transform: scale(1.1);
-  opacity: 1;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.slider-arrow:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.slider-arrow:disabled {
-  cursor: not-allowed;
-}
-
-/* Update keen-slider and portfolio-item styles */
+<style>
+/* Make styles consistent with Services component */
 .keen-slider {
-  min-height: 450px;
   display: flex;
   align-items: stretch;
   margin: 0 auto;
 }
 
-.portfolio-item {
-  height: 450px;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s, box-shadow 0.3s;
-  backdrop-filter: blur(5px);
-  border-radius: 8px;
-  padding: 0 10px;
+/* Add hover effects that match Services */
+.keen-slider__slide {
+  transition: transform 0.5s ease, box-shadow 0.5s ease !important;
 }
 
-/* Image and content styles */
-.image {
-  flex: 0 0 auto;
-  width: 100%;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.image img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.3s;
-}
-
-.project-info {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.project-info a.button {
-  margin-top: auto;
-}
-
-/* Hover effects */
-.portfolio-item:hover {
+.keen-slider__slide:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.portfolio-item:hover .image img {
-  transform: scale(1.05);
-}
-
-/* Loader styling */
-.loader {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 5px solid rgba(255, 255, 255, 0.2);
-  border-top-color: currentColor;
-  animation: spin 1s linear infinite;
-}
-
+/* Loader animation */
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* Responsive adjustments */
-@media screen and (max-width: 768px) {
-  .content {
-    padding: 1rem;
+/* Media query for adjustments on smaller screens */
+@media (max-width: 768px) {
+  .keen-slider {
+    min-height: auto;
   }
 
-  .portfolio-slider-container {
-    padding: 0 30px;
-  }
-
-  .portfolio-item {
-    height: 400px;
-  }
-
-  .slider-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-  }
-}
-
-@media screen and (min-width: 1200px) {
-  .slider-arrow {
-    width: 50px;
-    height: 50px;
-    font-size: 1.4rem;
+  .keen-slider__slide {
+    min-height: 300px !important;
+    max-height: 380px !important;
   }
 }
 </style>

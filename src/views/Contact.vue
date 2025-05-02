@@ -1,117 +1,114 @@
 <template>
-  <section id="contact" class="section is-fullheight" data-section="4" :style="sectionStyle">
-    <div class="container">
-      <div class="content has-text-centered px-4 py-5">
-        <h1 class="title is-1 has-text-centered mb-3" :style="{ color: sectionStyle.color }">Contacto</h1>
-        <p class="subtitle is-4 has-text-centered mb-5" :style="{ color: sectionStyle.color }">
+  <section id="contact" class="w-full h-screen flex items-center justify-center" :style="sectionStyle">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto text-center px-4 py-5">
+        <h1 class="text-4xl font-bold mb-3" :style="{ color: sectionStyle.color }">Contacto</h1>
+        <p class="text-xl mb-5" :style="{ color: sectionStyle.color }">
           ¡Demos vida a tus ideas!
         </p>
 
-        <form class="contact-form" action="https://formsubmit.co/icarrasco@caput.cl" method="POST"
+        <form class="max-w-lg mx-auto mb-8" action="https://formsubmit.co/icarrasco@caput.cl" method="POST"
           @submit="handleSubmit">
-          <div class="field">
-            <div class="columns is-mobile">
-              <div class="column is-half">
-                <div class="control">
-                  <input type="text" name="name" id="name" required v-model="formData.name" class="input"
-                    :style="inputStyle" placeholder="Nombre">
-                </div>
+          <div class="mb-4">
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+              <div class="w-full md:w-1/2">
+                <input type="text" name="name" id="name" required v-model="formData.name"
+                  class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300"
+                  :style="inputStyle" placeholder="Nombre">
               </div>
-              <div class="column is-half">
-                <div class="control">
-                  <input type="email" name="email" id="email" required v-model="formData.email" class="input"
-                    :style="inputStyle" placeholder="Email">
-                </div>
+              <div class="w-full md:w-1/2">
+                <input type="email" name="email" id="email" required v-model="formData.email"
+                  class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300"
+                  :style="inputStyle" placeholder="Email">
               </div>
             </div>
           </div>
 
-          <div class="field">
-            <div class="control">
-              <textarea name="message" id="message" required v-model="formData.message" class="textarea"
-                :style="inputStyle" placeholder="Mensaje" rows="4"></textarea>
-            </div>
+          <div class="mb-4">
+            <textarea name="message" id="message" required v-model="formData.message"
+              class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300"
+              :style="inputStyle" placeholder="Mensaje" rows="4"></textarea>
           </div>
 
-          <!-- Campos ocultos para FormSubmit -->
+          <!-- Hidden fields for FormSubmit -->
           <input type="hidden" name="_subject" value="¡Nuevo contacto desde Estudio Dos Puntos!">
           <input type="hidden" name="_template" value="table">
           <input type="hidden" name="_captcha" value="false">
           <input type="hidden" name="_next" value="https://estudiodospuntos.cl/">
 
-          <div class="field">
-            <div class="control is-flex is-justify-content-flex-end">
-              <button type="submit" class="button" :style="buttonStyle" :disabled="isSubmitting">
-                <span v-if="isSubmitting" class="is-flex is-align-items-center">
-                  <i class="bi bi-arrow-clockwise rotating mr-2"></i>
-                  Enviando...
-                </span>
-                <span v-else class="is-flex is-align-items-center">
-                  <i class="bi bi-send-fill mr-2"></i>
-                  Enviar
-                </span>
-              </button>
-            </div>
+          <div class="flex justify-end">
+            <button type="submit"
+              class="px-5 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+              :style="buttonStyle" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="flex items-center">
+                <i class="bi bi-arrow-clockwise animate-spin mr-2"></i>
+                Enviando...
+              </span>
+              <span v-else class="flex items-center">
+                <i class="bi bi-send-fill mr-2"></i>
+                Enviar
+              </span>
+            </button>
           </div>
 
-          <div v-if="formStatus" class="notification"
-            :class="{ 'is-success': formStatus.type === 'success', 'is-danger': formStatus.type === 'error' }">
+          <div v-if="formStatus" class="mt-4 p-3 rounded-lg" :class="{
+            'bg-green-100 text-green-800': formStatus.type === 'success',
+            'bg-red-100 text-red-800': formStatus.type === 'error'
+          }">
             {{ formStatus.message }}
           </div>
         </form>
 
-        <!-- Replace your existing contact info section with this enhanced version -->
-        <div class="contact-info mt-5 mb-5">
-          <h4 class="subtitle is-5 has-text-centered mb-4" :style="{ color: sectionStyle.color }">Información de
-            contacto</h4>
-          <div class="columns is-multiline">
-            <!-- Phone contact with multiple options -->
-            <div class="column is-12">
-              <div class="contact-options">
-                <!-- Direct call option -->
-                <a href="tel:+56992659949" class="contact-box" :style="contactBoxStyle">
-                  <div class="is-flex is-align-items-center">
-                    <span class="icon mr-2" :style="iconStyle">
-                      <i class="bi bi-telephone"></i>
-                    </span>
-                    <p class="mb-0">+56 9 9265 9949</p>
-                  </div>
-                </a>
+        <!-- Contact information section -->
+        <div class="my-10">
+          <h4 class="text-xl font-medium mb-4" :style="{ color: sectionStyle.color }">Información de contacto</h4>
+          <div class="flex flex-col gap-4">
+            <!-- Contact options grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Phone contact -->
+              <a href="tel:+56992659949"
+                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                :style="contactBoxStyle">
+                <span class="mr-3 text-2xl" :style="iconStyle">
+                  <i class="bi bi-telephone"></i>
+                </span>
+                <p class="m-0 text-sm">+56 9 9265 9949</p>
+              </a>
 
-                <!-- WhatsApp option -->
-                <a href="https://wa.me/56992659949" target="_blank" class="contact-box" :style="contactBoxStyle">
-                  <div class="is-flex is-align-items-center">
-                    <span class="icon mr-2" :style="iconStyle">
-                      <i class="bi bi-whatsapp"></i>
-                    </span>
-                    <p class="mb-0">WhatsApp</p>
-                  </div>
-                </a>
-                <a href="https://www.linkedin.com/in/ignaciocarrascoh/" target="_blank" class="contact-box"
-                  :style="contactBoxStyle">
-                  <div class="is-flex is-align-items-center">
-                    <span class="icon mr-2" :style="iconStyle">
-                      <i class="bi bi-linkedin"></i>
-                    </span>
-                    <p class="mb-0">Ignacio Carrasco - Director de Proyectos</p>
-                  </div>
-                </a>
-                <a href="https://www.linkedin.com/in/alejandra-ram%C3%ADrez-moya-26b87b127/" target="_blank"
-                  class="contact-box" :style="contactBoxStyle">
-                  <div class="is-flex is-align-items-center">
-                    <span class="icon mr-2" :style="iconStyle">
-                      <i class="bi bi-linkedin"></i>
-                    </span>
-                    <p class="mb-0">Alejandra Ramírez - Directora Creativa</p>
-                  </div>
-                </a>
-              </div>
+              <!-- WhatsApp contact -->
+              <a href="https://wa.me/56992659949" target="_blank"
+                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                :style="contactBoxStyle">
+                <span class="mr-3 text-2xl" :style="iconStyle">
+                  <i class="bi bi-whatsapp"></i>
+                </span>
+                <p class="m-0 text-sm">WhatsApp</p>
+              </a>
+
+              <!-- LinkedIn - Ignacio -->
+              <a href="https://www.linkedin.com/in/ignaciocarrascoh/" target="_blank"
+                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                :style="contactBoxStyle">
+                <span class="mr-3 text-2xl" :style="iconStyle">
+                  <i class="bi bi-linkedin"></i>
+                </span>
+                <p class="m-0 text-sm">Ignacio Carrasco - Director de Proyectos</p>
+              </a>
+
+              <!-- LinkedIn - Alejandra -->
+              <a href="https://www.linkedin.com/in/alejandra-ram%C3%ADrez-moya-26b87b127/" target="_blank"
+                class="flex items-center p-4 rounded-lg border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                :style="contactBoxStyle">
+                <span class="mr-3 text-2xl" :style="iconStyle">
+                  <i class="bi bi-linkedin"></i>
+                </span>
+                <p class="m-0 text-sm">Alejandra Ramírez - Directora Creativa</p>
+              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </section>
 </template>
 
@@ -137,20 +134,18 @@ export default {
       color: '#3030D0'
     });
 
-    // Simplified computed styles
+    // Style computations
     const inputStyle = computed(() => ({
       backgroundColor: `${sectionStyle.value.color}10`,
       borderColor: `${sectionStyle.value.color}30`,
       color: sectionStyle.value.color
     }));
 
-    // Add new computed property for contact box styling
     const contactBoxStyle = computed(() => ({
       borderColor: `${sectionStyle.value.color}30`,
       backgroundColor: `${sectionStyle.value.color}10`,
     }));
 
-    // Update button style for circular shape
     const buttonStyle = computed(() => ({
       backgroundColor: sectionStyle.value.color,
       color: sectionStyle.value.backgroundColor,
@@ -162,18 +157,16 @@ export default {
       color: sectionStyle.value.color
     }));
 
-    const iconLinkStyle = computed(() => ({
-      color: sectionStyle.value.color
-    }));
-
     // Form submission handler
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+      // Prevent default form submission if you want to handle it with AJAX
+      // e.preventDefault();
+
       // FormSubmit will handle the actual submission
       isSubmitting.value = true;
       formStatus.value = null;
 
-      // We'll let the native form submission handle the actual sending
-      // but we'll add a small delay for UX purposes
+      // Simulate form submission for demo purposes
       setTimeout(() => {
         formStatus.value = {
           type: 'success',
@@ -181,7 +174,7 @@ export default {
         };
         isSubmitting.value = false;
 
-        // In a real implementation, FormSubmit would redirect to the _next URL
+        // Reset form after success message
         setTimeout(() => {
           formData.value = { name: '', email: '', message: '' };
           formStatus.value = null;
@@ -189,8 +182,21 @@ export default {
       }, 1500);
     };
 
+    // Handler for section-change events (when navigating between sections)
+    // REMOVED color-changing behavior from this handler
+    const handleSectionChange = (event) => {
+      // Now we only use this handler for other section-specific logic
+      // that doesn't involve changing colors
+      if (event.detail.section === 4) {
+        // Any section-specific logic that doesn't involve colors
+        // For example, you might want to reset the form when returning to this section
+      }
+    };
+
+    // Handler for theme-change events (when logo is clicked)
+    // This is now the ONLY place where colors should change
     const handleThemeChange = (event) => {
-      // Only update if it's for this section
+      // Check if this event is for this section
       if (event.detail.section === 4) {
         sectionStyle.value = {
           backgroundColor: event.detail.background,
@@ -200,10 +206,14 @@ export default {
     };
 
     onMounted(() => {
+      // Listen for both section-change and theme-change events
+      window.addEventListener('section-change', handleSectionChange);
       window.addEventListener('theme-change', handleThemeChange);
     });
 
     onUnmounted(() => {
+      // Clean up both event listeners
+      window.removeEventListener('section-change', handleSectionChange);
       window.removeEventListener('theme-change', handleThemeChange);
     });
 
@@ -215,7 +225,6 @@ export default {
       inputStyle,
       buttonStyle,
       iconStyle,
-      iconLinkStyle,
       contactBoxStyle,
       handleSubmit
     };

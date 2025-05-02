@@ -1,9 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import './assets/base.css'
-import './assets/main.css'
-import 'bulma/css/bulma.min.css' // Bulma CSS
-import './assets/override-bulma.css' // Import overrides AFTER Bulma
-import 'bootstrap-icons/font/bootstrap-icons.css' // Bootstrap Icons
+// Import Tailwind AFTER any other styling frameworks but BEFORE component styles
+import './index.css' // This contains all Tailwind imports
+import 'bootstrap-icons/font/bootstrap-icons.css'
+// Import PixiJS
+import * as PIXI from 'pixi.js'
 
+// Make PixiJS available globally (optional)
+window.PIXI = PIXI
+
+// Create and mount the Vue app
 createApp(App).mount('#app')

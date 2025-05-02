@@ -17,8 +17,9 @@
           :style="getMenuItemStyle(3)">Contacto</a>
       </div>
 
-      <!-- Update the menu toggle to use the same style and colors -->
-      <div class="menu-toggle" @click="toggleMenu" :class="{ 'menu-open': menuOpen }" :style="getToggleStyle()">
+      <!-- Updated menu toggle with enhanced accessibility -->
+      <div class="menu-toggle" @click="toggleMenu" :class="{ 'menu-open': menuOpen }" :style="getToggleStyle()"
+        role="button" aria-label="Toggle menu" tabindex="0">
         <div class="menu-icon" :class="{ 'menu-open': menuOpen }">
           <span></span>
           <span></span>
@@ -34,12 +35,14 @@
   position: fixed;
   bottom: 30px;
   right: 30px;
-  z-index: 1000;
+  z-index: 9999;
+  /* Increase z-index to be above fullPage.js elements */
 }
 
 .menu-content {
   position: relative;
-  z-index: 1010;
+  z-index: 10000;
+  /* Even higher z-index */
 }
 
 /* Update the menu-toggle style to be diamond-shaped */
@@ -105,20 +108,7 @@
   /* Keep the counter-rotation when open */
 }
 
-.menu-icon.menu-open span:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 5px);
-}
-
-.menu-icon.menu-open span:nth-child(2) {
-  opacity: 0;
-  transform: translateX(15px);
-}
-
-.menu-icon.menu-open span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -5px);
-}
-
-/* Adjusted hamburger to X animation */
+/* Keep only these adjusted versions */
 .menu-icon.menu-open span:nth-child(1) {
   transform: rotate(45deg) translate(5px, 5px);
   width: 100%;
@@ -212,7 +202,8 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(2px);
-  z-index: 990;
+  z-index: 9990;
+  /* High but below menu content */
   /* No more fixed animation here, we'll use Vue transitions */
 }
 
@@ -236,10 +227,15 @@
     /* Smaller parallelogram effect on mobile */
   }
 }
+
+/* Add this to prevent fullPage navigation from capturing events when menu is open */
+.menu-items.open~.fp-nav {
+  pointer-events: none !important;
+}
 </style>
 
 <script>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
 
 export default {
   emits: ['navigate'],
@@ -262,6 +258,20 @@ export default {
 
     const toggleMenu = () => {
       menuOpen.value = !menuOpen.value;
+
+      // If menu is opened, temporarily disable fullPage scrolling
+      if (menuOpen.value) {
+        if (window.fullpage_api) {
+          window.fullpage_api.setAllowScrolling(false);
+        }
+      } else {
+        // Re-enable scrolling when menu is closed
+        nextTick(() => {
+          if (window.fullpage_api) {
+            window.fullpage_api.setAllowScrolling(true);
+          }
+        });
+      }
     };
 
     // Dynamic styles for menu items with theme color
@@ -301,14 +311,19 @@ export default {
       return menuColors.value.text;
     });
 
+    // Enhanced navigation function to work better with fullPage
     const navigateTo = (sectionNumber) => {
       menuOpen.value = false;
-      emit('navigate', sectionNumber);
 
-      const event = new CustomEvent('navigate-to-section', {
-        detail: { section: sectionNumber }
-      });
-      window.dispatchEvent(event);
+      // Re-enable scrolling before navigation
+      if (window.fullpage_api) {
+        window.fullpage_api.setAllowScrolling(true);
+      }
+
+      // Small delay to ensure menu is closed before navigating
+      setTimeout(() => {
+        emit('navigate', sectionNumber);
+      }, 100);
     };
 
     // Keep your existing theme change handler
@@ -324,10 +339,22 @@ export default {
 
     onMounted(() => {
       window.addEventListener('theme-change', handleThemeChange);
+
+      // Add keyboard support for menu toggle
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menuOpen.value) {
+          toggleMenu();
+        }
+      });
     });
 
     onUnmounted(() => {
       window.removeEventListener('theme-change', handleThemeChange);
+      window.removeEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menuOpen.value) {
+          toggleMenu();
+        }
+      });
     });
 
     return {

@@ -1,157 +1,145 @@
 <template>
   <div class="app-container">
-    <div class="sections-container" ref="sectionsContainer">
-      <Home :current-section="currentSection" />
-      <Portfolio />
-      <Services />
-      <Contact />
+    <!-- Navigation dots -->
+    <div class="navigation-dots">
+      <button v-for="n in 4" :key="n" @click="scrollToSection(n)" :class="{ active: currentSection === n }"
+        class="nav-dot"></button>
     </div>
 
+    <!-- Floating Menu Component -->
     <FloatingMenu :current-section="currentSection" @navigate="scrollToSection" />
+
+    <!-- Sections container -->
+    <div class="sections-container" ref="sectionsContainer">
+      <!-- Home section with component -->
+      <section id="home" class="section">
+        <Home />
+      </section>
+
+      <!-- Portfolio section with component -->
+      <section id="portfolio" class="section">
+        <Portfolio />
+      </section>
+
+      <!-- Services section with component -->
+      <section id="services" class="section">
+        <Services />
+      </section>
+
+      <!-- Contact section with component -->
+      <section id="contact" class="section">
+        <Contact />
+      </section>
+    </div>
   </div>
 </template>
 
 <script>
-import { onMounted, onUnmounted, ref, nextTick } from 'vue';
-import { gsap } from 'gsap';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import FloatingMenu from './components/FloatingMenu.vue';
-
-// Import section components
-import Home from './views/Home.vue';
-import Portfolio from './views/Portfolio.vue';
-import Services from './views/Services.vue';
-import Contact from './views/Contact.vue';
-
-gsap.registerPlugin(ScrollToPlugin);
+import { onMounted, onUnmounted, ref } from 'vue';
+import Home from '@/views/Home.vue';
+import Portfolio from '@/views/Portfolio.vue';
+import Services from '@/views/Services.vue';
+import Contact from '@/views/Contact.vue';
+import FloatingMenu from '@/components/FloatingMenu.vue';
 
 export default {
   components: {
-    FloatingMenu,
     Home,
     Portfolio,
     Services,
-    Contact
+    Contact,
+    FloatingMenu
   },
   setup() {
-    const sectionsContainer = ref(null);
     const currentSection = ref(1);
-    let isScrolling = ref(false);
-    const totalSections = 4;
-
-    // Variables para manejo de eventos táctiles
+    const sectionsContainer = ref(null);
+    const isScrolling = ref(false);
     let touchStartY = 0;
     let touchEndY = 0;
-    const minTouchDistance = 50; // Distancia mínima para considerar un deslizamiento
+    let wheelTimeout = null;
     let touchTimeout = null;
 
-    // Updated getVisibleHeight function to leverage dvh
-    const getVisibleHeight = () => {
-      // Check if CSS custom properties are supported
-      const supportsCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--fake-var', '0');
-
-      if (supportsCSSVariables) {
-        // Create a test element with dvh height
-        const testEl = document.createElement('div');
-        testEl.style.height = '100dvh';
-        testEl.style.position = 'absolute';
-        testEl.style.visibility = 'hidden';
-        document.body.appendChild(testEl);
-
-        // Get the computed height which will be in pixels
-        const height = window.getComputedStyle(testEl).height;
-        document.body.removeChild(testEl);
-
-        // Return as a number
-        return parseFloat(height);
-      }
-
-      // Fallback to window.innerHeight
+    // Get the height of the viewport
+    const getViewportHeight = () => {
       return window.innerHeight;
-    };
+    }
 
-    // Update section positions function
-    const updateSectionPositions = () => {
-      if (!sectionsContainer.value) return;
-
-      const height = getVisibleHeight();
-
-      // Set explicit CSS variables for dvh usage
-      document.documentElement.style.setProperty('--vh', `${height / 100}px`);
-
-      // Update the container position
-      gsap.set(sectionsContainer.value, {
-        y: -((currentSection.value - 1) * height)
-      });
-    };
-
+    // Scroll to a specific section
     const scrollToSection = (sectionNumber) => {
       if (isScrolling.value) return;
-
       isScrolling.value = true;
       currentSection.value = sectionNumber;
 
-      // Dispatch section change event
-      window.dispatchEvent(new CustomEvent('section-change', {
-        detail: { section: sectionNumber }
-      }));
+      // Update URL hash without triggering scroll
+      const sectionIds = ['home', 'portfolio', 'services', 'contact'];
+      history.pushState(null, null, `#${sectionIds[sectionNumber - 1]}`);
 
-      // Get current dynamic height
-      const height = getVisibleHeight();
+      // Calculate the target scroll position
+      const targetY = (sectionNumber - 1) * getViewportHeight();
 
-      // Animation with GSAP
-      gsap.to(sectionsContainer.value, {
-        duration: 1,
-        y: -((sectionNumber - 1) * height),
-        ease: "power2.inOut",
-        onComplete: () => {
-          // Update URL
-          const sectionNames = ['home', 'portfolio', 'services', 'contact'];
-          history.pushState(null, null, `#${sectionNames[sectionNumber - 1]}`);
+      // Use smooth scrolling animation
+      const duration = 500;
+      const startY = sectionsContainer.value.scrollTop;
+      const distance = targetY - startY;
+      let startTime = null;
 
-          // After animation, ensure we're at the correct position
-          gsap.set(sectionsContainer.value, {
-            y: -((sectionNumber - 1) * getVisibleHeight())
-          });
+      const animation = (currentTime) => {
+        if (startTime === null) startTime = currentTime;
+        const elapsed = currentTime - startTime;
 
-          isScrolling.value = false;
+        // Ease in-out function
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = 0.5 * (1 - Math.cos(Math.PI * progress));
+
+        sectionsContainer.value.scrollTop = startY + distance * easedProgress;
+
+        if (elapsed < duration) {
+          window.requestAnimationFrame(animation);
+        } else {
+          // Dispatch section change event
+          window.dispatchEvent(
+            new CustomEvent('section-change', {
+              detail: { section: sectionNumber }
+            })
+          );
+
+          // Reset isScrolling after animation completes
+          setTimeout(() => {
+            isScrolling.value = false;
+          }, 100);
         }
-      });
+      };
+
+      window.requestAnimationFrame(animation);
     };
 
+    // Handle mouse wheel events
     const handleWheel = (e) => {
       e.preventDefault();
 
       if (isScrolling.value) return;
 
-      if (e.deltaY > 0 && currentSection.value < totalSections) {
-        // Scroll down
-        scrollToSection(currentSection.value + 1);
-      } else if (e.deltaY < 0 && currentSection.value > 1) {
-        // Scroll up
-        scrollToSection(currentSection.value - 1);
+      if (wheelTimeout) {
+        clearTimeout(wheelTimeout);
       }
+
+      wheelTimeout = setTimeout(() => {
+        // Determine scroll direction
+        const direction = e.deltaY > 0 ? 1 : -1;
+
+        if (direction > 0 && currentSection.value < 4) {
+          // Scroll down
+          scrollToSection(currentSection.value + 1);
+        } else if (direction < 0 && currentSection.value > 1) {
+          // Scroll up
+          scrollToSection(currentSection.value - 1);
+        }
+      }, 50);
     };
 
-    const handleKeyDown = (e) => {
-      if (isScrolling.value) return;
-
-      if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSection.value < totalSections) {
-        e.preventDefault();
-        scrollToSection(currentSection.value + 1);
-      } else if ((e.key === 'ArrowUp' || e.key === 'PageUp') && currentSection.value > 1) {
-        e.preventDefault();
-        scrollToSection(currentSection.value - 1);
-      }
-    };
-
+    // Handle touch events for mobile
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      // Prevenir el comportamiento por defecto para evitar el rebote/scroll nativo
-      e.preventDefault();
     };
 
     const handleTouchEnd = (e) => {
@@ -160,97 +148,92 @@ export default {
       touchEndY = e.changedTouches[0].clientY;
       const touchDistance = touchEndY - touchStartY;
 
-      // Evitar múltiples eventos de deslizamiento consecutivos
       if (touchTimeout) {
         clearTimeout(touchTimeout);
       }
 
       touchTimeout = setTimeout(() => {
-        // Si el deslizamiento fue lo suficientemente largo
-        if (Math.abs(touchDistance) > minTouchDistance) {
-          if (touchDistance < 0 && currentSection.value < totalSections) {
-            // Deslizamiento hacia arriba, mostrar siguiente sección
-            scrollToSection(currentSection.value + 1);
-          } else if (touchDistance > 0 && currentSection.value > 1) {
-            // Deslizamiento hacia abajo, mostrar sección anterior
+        // Minimum swipe distance (px)
+        const minDistance = 50;
+
+        if (Math.abs(touchDistance) >= minDistance) {
+          // Swipe down
+          if (touchDistance > 0 && currentSection.value > 1) {
             scrollToSection(currentSection.value - 1);
+          }
+          // Swipe up
+          else if (touchDistance < 0 && currentSection.value < 4) {
+            scrollToSection(currentSection.value + 1);
           }
         }
       }, 50);
     };
 
-    const handleResize = () => {
-      // Esperar por un momento para que cualquier cambio de UI se estabilice
-      if (resizeTimeout) clearTimeout(resizeTimeout);
+    // Check URL hash on load
+    const checkHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      const sectionIds = ['home', 'portfolio', 'services', 'contact'];
+      const index = sectionIds.indexOf(hash);
 
-      resizeTimeout = setTimeout(() => {
-        updateSectionPositions();
-      }, 100);
+      if (index !== -1) {
+        currentSection.value = index + 1;
+        // Use timeout to ensure DOM is ready
+        setTimeout(() => {
+          scrollToSection(index + 1);
+        }, 100);
+      }
     };
 
-    let resizeTimeout = null;
-    let orientationTimeout = null;
+    // Listen for the navigate-to-section event from the Home component
+    const handleNavigateToSection = (event) => {
+      if (event.detail && event.detail.section) {
+        scrollToSection(event.detail.section);
+      }
+    };
 
+    // Setup event listeners
     onMounted(() => {
-      // Set up event listeners
-      window.addEventListener('wheel', handleWheel, { passive: false });
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('resize', handleResize);
+      // Force initial scroll position
+      window.scrollTo(0, 0);
 
-      // Detectar cambios de orientación en dispositivos móviles
-      window.addEventListener('orientationchange', () => {
-        if (orientationTimeout) clearTimeout(orientationTimeout);
+      // Check for URL hash
+      checkHash();
 
-        // Dar más tiempo para que se complete el cambio de orientación
-        orientationTimeout = setTimeout(() => {
-          updateSectionPositions();
-        }, 300);
-      });
-
-      // Agregar eventos táctiles para dispositivos móviles
-      window.addEventListener('touchstart', handleTouchStart, { passive: false });
-      window.addEventListener('touchmove', handleTouchMove, { passive: false });
-      window.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-      // Handle direct URL navigation with hash
-      if (window.location.hash) {
-        const sectionNames = ['home', 'portfolio', 'services', 'contact'];
-        const section = window.location.hash.replace('#', '');
-        const sectionNumber = sectionNames.indexOf(section) + 1;
-
-        if (sectionNumber >= 1 && sectionNumber <= totalSections) {
-          currentSection.value = sectionNumber;
-        }
+      // Add event listeners
+      if (sectionsContainer.value) {
+        sectionsContainer.value.addEventListener('wheel', handleWheel, { passive: false });
+        sectionsContainer.value.addEventListener('touchstart', handleTouchStart, { passive: true });
+        sectionsContainer.value.addEventListener('touchend', handleTouchEnd, { passive: true });
       }
 
-      // Esperar a que todo se inicialice completamente
-      nextTick(() => {
-        // Esperar otro momento más para asegurar que las alturas sean correctas
-        setTimeout(() => {
-          updateSectionPositions();
-        }, 100);
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        // Re-scroll to current section on resize
+        scrollToSection(currentSection.value);
       });
+
+      // Add listener for navigation from Home component
+      window.addEventListener('navigate-to-section', handleNavigateToSection);
     });
 
+    // Clean up event listeners
     onUnmounted(() => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
+      if (sectionsContainer.value) {
+        sectionsContainer.value.removeEventListener('wheel', handleWheel);
+        sectionsContainer.value.removeEventListener('touchstart', handleTouchStart);
+        sectionsContainer.value.removeEventListener('touchend', handleTouchEnd);
+      }
 
-      // Eliminar eventos táctiles
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('resize', () => { });
+      window.removeEventListener('navigate-to-section', handleNavigateToSection);
 
+      if (wheelTimeout) clearTimeout(wheelTimeout);
       if (touchTimeout) clearTimeout(touchTimeout);
-      if (resizeTimeout) clearTimeout(resizeTimeout);
-      if (orientationTimeout) clearTimeout(orientationTimeout);
     });
 
     return {
-      sectionsContainer,
       currentSection,
+      sectionsContainer,
       scrollToSection
     };
   }
@@ -258,68 +241,93 @@ export default {
 </script>
 
 <style>
-/* Reset styles to override any Bulma defaults */
 html,
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
   height: 100%;
-  overflow: hidden !important;
-  /* Important to override Bulma */
-  width: 100%;
-  position: fixed;
-  /* Prevent browser address bar issues */
 }
 
-/* App container styles */
 .app-container {
   width: 100%;
   height: 100vh;
-  /* Fallback for older browsers */
-  height: 100dvh;
-  /* Dynamic viewport height - adjusts for address bar */
+  position: relative;
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
 }
 
-/* Section container styles */
 .sections-container {
   width: 100%;
-  height: 100vh;
-  /* Fallback */
-  height: 100dvh;
-  /* Dynamic viewport height */
-  position: absolute;
-  will-change: transform;
-}
-
-/* Individual section styling */
-.sections-container>* {
-  width: 100%;
-  height: 100vh !important;
-  /* Fallback */
-  height: 100dvh !important;
-  /* Dynamic viewport height */
-  position: relative;
-  overflow: auto;
-  /* Allow scrolling within sections if needed */
-}
-
-/* Make sure Bulma doesn't limit our app width */
-#app {
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100%;
   height: 100%;
+  overflow: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
 }
 
-/* Override Bulma's font variables */
-:root {
-  --bulma-body-family: 'Montserrat', sans-serif !important;
-  --bulma-family-primary: 'Montserrat', sans-serif !important;
-  --bulma-family-sans-serif: 'Montserrat', sans-serif !important;
+.section {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+}
+
+.test-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+p {
+  font-size: 1.5rem;
+}
+
+/* Navigation dots */
+.navigation-dots {
+  position: fixed;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.nav-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-dot.active {
+  background-color: white;
+  transform: scale(1.3);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .navigation-dots {
+    right: 15px;
+  }
+
+  .nav-dot {
+    width: 10px;
+    height: 10px;
+  }
 }
 </style>

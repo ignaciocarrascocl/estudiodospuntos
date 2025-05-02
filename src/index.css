@@ -1,0 +1,78 @@
+/* Define the Tailwind config path (must come first) */
+@config "../tailwind.config.js";
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Montserrat', sans-serif;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    touch-action: none;
+  }
+}
+
+/* Custom components */
+@layer components {
+  .service-card {
+    height: 100%;
+    padding: 1.5rem; /* 24px = p-6 in Tailwind v3 */
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .slider-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem; /* 44px = w-11 in Tailwind v3 */
+    height: 2.75rem; /* 44px = h-11 in Tailwind v3 */
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.25rem;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .slider-arrow:hover {
+    transform: scale(1.1);
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .slider-arrow:active {
+    transform: scale(0.95);
+  }
+
+  .contact-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; /* 16px = p-4 in Tailwind v3 */
+    border-radius: 0.5rem;
+    border: 1px solid;
+    transition: all 0.3s;
+    height: 100%;
+  }
+
+  .contact-box:hover {
+    transform: translateY(-0.25rem);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
