@@ -45,25 +45,41 @@ export default {
     const minTouchDistance = 50; // Distancia mínima para considerar un deslizamiento
     let touchTimeout = null;
 
-    // Función para obtener la altura real de la ventana visible
+    // Updated getVisibleHeight function to leverage dvh
     const getVisibleHeight = () => {
-      // Usar innerHeight para la mayoría de los casos
+      // Check if CSS custom properties are supported
+      const supportsCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--fake-var', '0');
+
+      if (supportsCSSVariables) {
+        // Create a test element with dvh height
+        const testEl = document.createElement('div');
+        testEl.style.height = '100dvh';
+        testEl.style.position = 'absolute';
+        testEl.style.visibility = 'hidden';
+        document.body.appendChild(testEl);
+
+        // Get the computed height which will be in pixels
+        const height = window.getComputedStyle(testEl).height;
+        document.body.removeChild(testEl);
+
+        // Return as a number
+        return parseFloat(height);
+      }
+
+      // Fallback to window.innerHeight
       return window.innerHeight;
     };
 
+    // Update section positions function
     const updateSectionPositions = () => {
-      // Asegurarse de que las posiciones estén actualizadas incluso después de cambios de orientación
       if (!sectionsContainer.value) return;
 
       const height = getVisibleHeight();
 
-      // Aplicar altura a cada sección
-      const sections = sectionsContainer.value.children;
-      for (let i = 0; i < sections.length; i++) {
-        sections[i].style.height = `${height}px`;
-      }
+      // Set explicit CSS variables for dvh usage
+      document.documentElement.style.setProperty('--vh', `${height / 100}px`);
 
-      // Actualizar posición actual
+      // Update the container position
       gsap.set(sectionsContainer.value, {
         y: -((currentSection.value - 1) * height)
       });
@@ -75,34 +91,30 @@ export default {
       isScrolling.value = true;
       currentSection.value = sectionNumber;
 
-      // Dispatch an event that the logo can listen to
+      // Dispatch section change event
       window.dispatchEvent(new CustomEvent('section-change', {
         detail: { section: sectionNumber }
       }));
 
-      // Obtener altura actualizada
+      // Get current dynamic height
       const height = getVisibleHeight();
 
-      // Use GSAP ScrollTo to create a scrolling effect with calculated height
+      // Animation with GSAP
       gsap.to(sectionsContainer.value, {
         duration: 1,
         y: -((sectionNumber - 1) * height),
         ease: "power2.inOut",
         onComplete: () => {
-          // Update URL with the section name instead of number
+          // Update URL
           const sectionNames = ['home', 'portfolio', 'services', 'contact'];
           history.pushState(null, null, `#${sectionNames[sectionNumber - 1]}`);
-          isScrolling.value = false;
 
-          // Verificar si la posición es correcta y ajustar si es necesario
-          nextTick(() => {
-            const expectedY = -((sectionNumber - 1) * getVisibleHeight());
-            const currentY = gsap.getProperty(sectionsContainer.value, "y");
-
-            if (Math.abs(expectedY - currentY) > 5) {
-              gsap.set(sectionsContainer.value, { y: expectedY });
-            }
+          // After animation, ensure we're at the correct position
+          gsap.set(sectionsContainer.value, {
+            y: -((sectionNumber - 1) * getVisibleHeight())
           });
+
+          isScrolling.value = false;
         }
       });
     };
@@ -246,7 +258,7 @@ export default {
 </script>
 
 <style>
-/* Reset styles to override any Bulma defaults that might conflict */
+/* Reset styles to override any Bulma defaults */
 html,
 body {
   margin: 0;
@@ -256,13 +268,16 @@ body {
   /* Important to override Bulma */
   width: 100%;
   position: fixed;
-  /* This prevents browser address bar issues */
+  /* Prevent browser address bar issues */
 }
 
 /* App container styles */
 .app-container {
   width: 100%;
   height: 100vh;
+  /* Fallback for older browsers */
+  height: 100dvh;
+  /* Dynamic viewport height - adjusts for address bar */
   overflow: hidden;
   position: fixed;
   top: 0;
@@ -273,7 +288,9 @@ body {
 .sections-container {
   width: 100%;
   height: 100vh;
-  /* Use viewport height */
+  /* Fallback */
+  height: 100dvh;
+  /* Dynamic viewport height */
   position: absolute;
   will-change: transform;
 }
@@ -282,18 +299,12 @@ body {
 .sections-container>* {
   width: 100%;
   height: 100vh !important;
+  /* Fallback */
+  height: 100dvh !important;
+  /* Dynamic viewport height */
   position: relative;
   overflow: auto;
   /* Allow scrolling within sections if needed */
-}
-
-/* Add this for iOS Safari specific fix */
-@supports (-webkit-touch-callout: none) {
-
-  .sections-container,
-  .sections-container>* {
-    height: -webkit-fill-available !important;
-  }
 }
 
 /* Make sure Bulma doesn't limit our app width */
