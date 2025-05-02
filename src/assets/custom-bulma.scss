@@ -5,5 +5,8 @@
 $family-sans-serif: 'Montserrat', sans-serif;
 $family-primary: $family-sans-serif;
 
-// Importar Bulma
-@import '~bulma/bulma';
+// Importar Bulma - Using node_modules path
+@import 'node_modules/bulma/bulma.sass';
+
+// Alternatively, if the above doesn't work:
+// @import '../node_modules/bulma/bulma.sass';

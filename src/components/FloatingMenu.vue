@@ -1,6 +1,6 @@
 <template>
   <div class="floating-menu">
-    <!-- Use v-show instead of v-if to allow exit animations -->
+    <!-- Keep your existing backdrop transition -->
     <transition name="fade">
       <div class="menu-backdrop" v-show="menuOpen" @click="toggleMenu"></div>
     </transition>
@@ -17,7 +17,8 @@
           :style="getMenuItemStyle(3)">Contacto</a>
       </div>
 
-      <div class="menu-toggle" @click="toggleMenu" :class="{ 'menu-open': menuOpen }">
+      <!-- Update the menu toggle to use the same style and colors -->
+      <div class="menu-toggle" @click="toggleMenu" :class="{ 'menu-open': menuOpen }" :style="getToggleStyle()">
         <div class="menu-icon" :class="{ 'menu-open': menuOpen }">
           <span></span>
           <span></span>
@@ -39,52 +40,69 @@
 .menu-content {
   position: relative;
   z-index: 1010;
-  /* Higher than backdrop */
 }
 
+/* Update the menu-toggle style to be diamond-shaped */
 .menu-toggle {
   width: 60px;
   height: 60px;
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  transform: rotate(45deg);
+  /* Make it diamond */
+  border-radius: 5px;
+  /* Slightly rounded corners */
+  position: relative;
+  /* Added for better icon positioning */
 }
 
 .menu-toggle:hover {
-  transform: scale(1.05);
-  background: black;
+  transform: rotate(45deg) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .menu-toggle.menu-open {
-  transform: rotate(180deg);
-  background: white;
+  transform: rotate(225deg);
+  /* 180 + 45 to keep diamond shape while rotating */
 }
 
 .menu-icon {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 24px;
+  width: 20px;
   height: 18px;
   transition: all 0.3s ease;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  /* Counter-rotate to keep lines horizontal */
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 
+/* Ensure the spans are properly sized and spaced */
 .menu-icon span {
   display: block;
-  height: 3px;
+  height: 2.5px;
   width: 100%;
-  background: white;
   transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
   border-radius: 3px;
+  margin: 0;
+  /* Reset any margin that might affect layout */
 }
 
-.menu-icon.menu-open span {
-  background: black;
+/* Add this style to control icon color - v-bind allows dynamic colors */
+.menu-icon span {
+  background-color: v-bind('menuColors.text');
+}
+
+.menu-icon.menu-open {
+  transform: translate(-50%, -50%) rotate(-45deg);
+  /* Keep the counter-rotation when open */
 }
 
 .menu-icon.menu-open span:nth-child(1) {
@@ -100,6 +118,23 @@
   transform: rotate(-45deg) translate(6px, -5px);
 }
 
+/* Adjusted hamburger to X animation */
+.menu-icon.menu-open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+  width: 100%;
+}
+
+.menu-icon.menu-open span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(15px);
+}
+
+.menu-icon.menu-open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+  width: 100%;
+}
+
+/* Keep your existing menu items styles */
 .menu-items {
   position: absolute;
   bottom: 75px;
@@ -109,22 +144,20 @@
   align-items: flex-end;
   pointer-events: none;
   z-index: 1020;
-  /* Highest z-index to stay on top */
 }
 
+/* Remaining styles unchanged */
 .menu-items.open {
   pointer-events: auto;
 }
 
 .menu-items a {
-  --p: 20px; /* Control the parallelogram shape */
+  --p: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 12px 25px;
   margin-bottom: 15px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
   text-decoration: none;
   font-weight: bold;
   min-width: 140px;
@@ -136,7 +169,6 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  /* Apply clip-path for parallelogram shape */
   clip-path: polygon(var(--p) 0, 100% 0, calc(100% - var(--p)) 100%, 0 100%);
 }
 
@@ -200,13 +232,14 @@
   .menu-items a {
     min-width: 120px;
     padding: 10px 20px;
-    --p: 15px; /* Smaller parallelogram effect on mobile */
+    --p: 15px;
+    /* Smaller parallelogram effect on mobile */
   }
 }
 </style>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
 export default {
   emits: ['navigate'],
@@ -218,22 +251,36 @@ export default {
   },
   setup(props, { emit }) {
     const menuOpen = ref(false);
-    const animationDelay = 0.08; // Delay between each menu item in seconds
+    const animationDelay = 0.08;
+    const isLogoA = ref(true);
+
+    // Theme colors from palette
+    const menuColors = computed(() => ({
+      background: isLogoA.value ? '#3030D0' : '#FF97D6',
+      text: isLogoA.value ? '#FFFFFF' : '#3030D0'
+    }));
 
     const toggleMenu = () => {
       menuOpen.value = !menuOpen.value;
     };
 
-    // Dynamic styles for staggered animation
+    // Dynamic styles for menu items with theme color
     const getMenuItemStyle = (index) => {
+      const baseStyle = {
+        backgroundColor: menuColors.value.background,
+        color: menuColors.value.text
+      };
+
       if (menuOpen.value) {
         return {
+          ...baseStyle,
           opacity: '1',
           transform: 'translateX(0)',
           transition: `all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${animationDelay * index}s`
         };
       } else {
         return {
+          ...baseStyle,
           opacity: '0',
           transform: 'translateX(50px)',
           transition: `all 0.3s ease ${0.1 * (3 - index)}s`
@@ -241,24 +288,56 @@ export default {
       }
     };
 
+    // NEW FUNCTION: Style for the toggle button
+    const getToggleStyle = () => {
+      return {
+        backgroundColor: menuColors.value.background,
+        borderColor: menuColors.value.background
+      };
+    };
+
+    // Icon color computed property
+    const getIconColor = computed(() => {
+      return menuColors.value.text;
+    });
+
     const navigateTo = (sectionNumber) => {
       menuOpen.value = false;
-
-      // Use the parent's scrollToSection method
       emit('navigate', sectionNumber);
 
-      // Alternative direct approach
       const event = new CustomEvent('navigate-to-section', {
         detail: { section: sectionNumber }
       });
       window.dispatchEvent(event);
     };
 
+    // Keep your existing theme change handler
+    const handleThemeChange = (event) => {
+      const themeDetails = event.detail;
+
+      if (themeDetails.background === '#3030D0' || themeDetails.background === '#FF4B00') {
+        isLogoA.value = true;
+      } else if (themeDetails.background === '#FF97D6' || themeDetails.background === '#00DEB5') {
+        isLogoA.value = false;
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener('theme-change', handleThemeChange);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('theme-change', handleThemeChange);
+    });
+
     return {
       menuOpen,
       toggleMenu,
       navigateTo,
-      getMenuItemStyle
+      getMenuItemStyle,
+      getToggleStyle,
+      getIconColor,
+      menuColors
     };
   }
 }

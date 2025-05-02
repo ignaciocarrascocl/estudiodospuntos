@@ -246,15 +246,43 @@ export default {
 </script>
 
 <style>
+/* Reset styles to override any Bulma defaults that might conflict */
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
+  overflow: hidden !important;
+  /* Important to override Bulma */
   width: 100%;
-  font-family: 'Montserrat', sans-serif;
 }
 
-/* Resto de estilos sin cambios */
+/* App container styles */
+.app-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Section container styles */
+.sections-container {
+  width: 100%;
+  position: relative;
+}
+
+/* Make sure Bulma doesn't limit our app width */
+#app {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+}
+
+/* Override Bulma's font variables */
+:root {
+  --bulma-body-family: 'Montserrat', sans-serif !important;
+  --bulma-family-primary: 'Montserrat', sans-serif !important;
+  --bulma-family-sans-serif: 'Montserrat', sans-serif !important;
+}
 </style>

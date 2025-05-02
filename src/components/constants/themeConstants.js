@@ -3,7 +3,7 @@ export const validColorThemes = [
   { background: '#3030D0', text: '#FF97D6', requiresLogoA: true }, // Blue background + Pink text - requires logo A
   { background: '#00DEB5', text: '#3030D0', requiresLogoA: null }, // Green background + Blue text - either logo
   { background: '#FF97D6', text: '#3030D0', requiresLogoB: true }, // Pink background + Blue text - requires logo B
-  { background: '#FF4B00', text: '#FF97D6', requiresLogoA: null }, // Orange background + Pink text - either logo
+  { background: '#FF4B00', text: '#FFFFFF', requiresLogoA: null }, // Orange background + Pink text - either logo
   { background: '#000000', text: '#FF97D6', requiresLogoA: null }, // Black background + Pink text - either logo
   { background: '#FFFFFF', text: '#3030D0', requiresLogoA: null }, // White background + Blue text - either logo
 ]

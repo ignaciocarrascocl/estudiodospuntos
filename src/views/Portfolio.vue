@@ -1,59 +1,68 @@
 <template>
-  <section id="portfolio" class="section" data-section="2" :style="sectionStyle">
-    <div class="content">
-      <h1 class="title is-1 has-text-centered">Portafolio</h1>
-      <p class="subtitle is-4 has-text-centered">Nuestros proyectos más recientes</p>
+  <section id="portfolio" class="section is-fullheight is-flex is-align-items-center is-justify-content-center p-0"
+    data-section="2" :style="sectionStyle">
+    <div class="container">
+      <div class="px-3">
+        <h1 class="title is-2 has-text-centered mb-3" :style="{ color: sectionStyle.color }">Portafolio</h1>
+        <p class="subtitle is-5 has-text-centered mb-5" :style="{ color: sectionStyle.color }">Nuestros proyectos
+          más
+          recientes
+        </p>
 
-      <!-- Loader mientras se cargan los proyectos -->
-      <div v-if="loading" class="loader-container">
-        <div class="loader" :style="{ borderTopColor: sectionStyle.color }"></div>
-      </div>
-
-      <div v-else-if="error" class="notification is-danger">
-        {{ error }}
-      </div>
-
-      <!-- Contenedor horizontal scrollable -->
-      <div v-else class="portfolio-horizontal-scroll">
-        <div class="portfolio-inner">
-          <!-- Items de portfolio -->
-          <div
-            v-for="project in portfolioItems"
-            :key="project.id"
-            class="portfolio-item"
-          >
-            <!-- Imagen -->
-            <figure class="image is-5by3 mb-3">
-              <img
-                :src="project.featuredImage"
-                :alt="project.title"
-                @error="handleImageError"
-              >
-            </figure>
-
-            <!-- Título del proyecto debajo de la imagen -->
-            <div class="project-info">
-              <h3 class="title is-5" :style="{ color: sectionStyle.color }">{{ project.title }}</h3>
-              <p class="project-brief">{{ project.description }}</p>
-              <a
-                v-if="project.url"
-                :href="project.url"
-                target="_blank"
-                class="button is-small mt-2"
-                :style="{
-                  backgroundColor: sectionStyle.color,
-                  color: sectionStyle.backgroundColor
-                }"
-              >
-                Ver proyecto
-              </a>
-            </div>
-          </div>
+        <!-- Loader mientras se cargan los proyectos -->
+        <div v-if="loading" class="is-flex is-justify-content-center is-align-items-center py-6">
+          <div class="loader" :style="{ borderTopColor: sectionStyle.color }"></div>
         </div>
 
-        <!-- Indicador de scroll -->
-        <div class="scroll-indicator" :style="{ color: sectionStyle.color }">
-          <span>→ Desliza para ver más</span>
+        <div v-else-if="error" class="notification is-danger">
+          {{ error }}
+        </div>
+
+        <!-- Keen Slider for Portfolio Items -->
+        <div v-else class="portfolio-slider-container">
+          <!-- Main slider -->
+          <div ref="container" class="keen-slider">
+            <div v-for="(project) in portfolioItems" :key="project.id"
+              class="keen-slider__slide portfolio-item box light-card p-3">
+              <!-- Imagen -->
+              <figure class="image is-5by3 mb-3">
+                <img :src="project.featuredImage" :alt="project.title" @error="handleImageError" class="has-ratio">
+              </figure>
+
+              <!-- Título del proyecto debajo de la imagen -->
+              <div class="project-info">
+                <h3 class="title is-size-5 mb-3" :style="{ color: sectionStyle.color }">{{ project.title }}</h3>
+                <p class="subtitle is-size-7" :style="{ color: sectionStyle.color }">{{ project.description }}</p>
+                <a v-if="project.url" :href="project.url" target="_blank" class="button is-small mt-3"
+                  :style="{ backgroundColor: sectionStyle.color, color: sectionStyle.backgroundColor }">
+                  Ver proyecto
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation buttons -->
+          <div v-if="portfolioItems.length > 1" class="slider-controls-container">
+            <!-- Navigation arrows only - dot indicators removed -->
+            <div class="slider-arrows">
+              <button class="slider-arrow" @click="prevSlide" :disabled="currentSlideIndex === 0" :style="{
+                color: sectionStyle.backgroundColor,
+                backgroundColor: sectionStyle.color,
+                opacity: currentSlideIndex === 0 ? '0.5' : '1'
+              }">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <button class="slider-arrow" @click="nextSlide"
+                :disabled="currentSlideIndex === portfolioItems.length - 1" :style="{
+                  color: sectionStyle.backgroundColor,
+                  backgroundColor: sectionStyle.color,
+                  opacity: currentSlideIndex === portfolioItems.length - 1 ? '0.5' : '1'
+                }">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -63,6 +72,8 @@
 <script>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { getPortfolioItems } from '@/services/contentfulService';
+import KeenSlider from 'keen-slider';
+import 'keen-slider/keen-slider.min.css';
 
 export default {
   name: 'PortfolioView',
@@ -70,14 +81,78 @@ export default {
     // Default colors
     const sectionStyle = ref({
       backgroundColor: '#FF4B00',
-      color: '#FF97D6'
+      color: '#FFFFFF'
     });
 
     const portfolioItems = ref([]);
     const loading = ref(true);
     const error = ref(null);
 
-    // Cargar proyectos desde Contentful
+    // Create a ref for the slider
+    const sliderInstance = ref(null);
+    const container = ref(null);
+    const currentSlideIndex = ref(0);
+
+    // Initialize the Keen Slider
+    const initializeSlider = () => {
+      try {
+        if (!container.value) {
+          return null;
+        }
+
+        const slidesPerView = getSlidesPerView();
+
+        // Create the Keen Slider instance with consistent behavior
+        const keenSliderInstance = new KeenSlider(container.value, {
+          loop: false,
+          mode: "snap",
+          slides: { perView: slidesPerView, spacing: 20 },
+          created(slider) {
+            sliderInstance.value = slider;
+          },
+          slideChanged(slider) {
+            // Update the current slide index reactively
+            currentSlideIndex.value = slider.track.details.rel;
+          }
+        });
+
+        sliderInstance.value = keenSliderInstance;
+        return keenSliderInstance;
+      } catch (err) {
+        console.error('Error initializing Keen Slider:', err);
+        return null;
+      }
+    };
+
+    // Determine how many slides to show based on screen width
+    const getSlidesPerView = () => {
+      const width = window.innerWidth;
+      if (width < 768) return 1;
+      if (width < 1024) return 2;
+      return 3;
+    };
+
+    // Navigation functions
+    const nextSlide = () => {
+      if (sliderInstance.value) {
+        try {
+          sliderInstance.value.next();
+        } catch (err) {
+          console.error('Error executing next():', err);
+        }
+      }
+    };
+
+    const prevSlide = () => {
+      if (sliderInstance.value) {
+        try {
+          sliderInstance.value.prev();
+        } catch (err) {
+          console.error('Error executing prev():', err);
+        }
+      }
+    };
+
     const loadPortfolioItems = async () => {
       try {
         loading.value = true;
@@ -86,6 +161,11 @@ export default {
 
         if (portfolioItems.value.length === 0) {
           error.value = "No se encontraron proyectos. ¡Agrega algunos en Contentful!";
+        } else {
+          // Initialize slider after DOM updates with items
+          setTimeout(() => {
+            initializeSlider();
+          }, 500); // Longer timeout to ensure DOM is ready
         }
       } catch (err) {
         console.error('Error al cargar proyectos:', err);
@@ -96,7 +176,6 @@ export default {
     };
 
     const handleThemeChange = (event) => {
-      // Only update if it's for this section
       if (event.detail.section === 2) {
         sectionStyle.value = {
           backgroundColor: event.detail.background,
@@ -105,18 +184,46 @@ export default {
       }
     };
 
-    // Manejar errores de carga de imágenes
     const handleImageError = (e) => {
-      e.target.src = '/images/placeholder.jpg'; // Asegúrate de tener esta imagen
+      e.target.src = '/images/placeholder.jpg';
+    };
+
+    // Handler for window resize
+    const handleResize = () => {
+      if (sliderInstance.value) {
+        setTimeout(() => {
+          try {
+            // Update slides per view on resize
+            const slidesPerView = getSlidesPerView();
+            sliderInstance.value.options.slides.perView = slidesPerView;
+            sliderInstance.value.update();
+          } catch (err) {
+            console.error('Error updating after resize:', err);
+          }
+        }, 100);
+      }
     };
 
     onMounted(() => {
       window.addEventListener('theme-change', handleThemeChange);
+      window.addEventListener('resize', handleResize);
+
+      // Load portfolio items
       loadPortfolioItems();
     });
 
     onUnmounted(() => {
       window.removeEventListener('theme-change', handleThemeChange);
+      window.removeEventListener('resize', handleResize);
+
+      // Destroy slider instance
+      if (sliderInstance.value) {
+        try {
+          sliderInstance.value.destroy();
+        } catch (err) {
+          console.error('Error destroying slider:', err);
+        }
+      }
     });
 
     return {
@@ -124,7 +231,11 @@ export default {
       portfolioItems,
       loading,
       error,
-      handleImageError
+      handleImageError,
+      container,
+      currentSlideIndex,
+      nextSlide,
+      prevSlide
     };
   }
 }
@@ -134,75 +245,89 @@ export default {
 section {
   width: 100%;
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   transition: background-color 0.5s, color 0.5s;
 }
 
-.content {
+.subtitle,
+.title {
+  transition: color 0.5s;
+  color: inherit !important;
+}
+
+/* Portfolio slider container - match Services styling */
+.portfolio-slider-container {
+  position: relative;
   width: 100%;
-  padding: 20px;
-  max-height: 80vh;
+  padding: 0 40px;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* Slider controls - match Services styling */
+.slider-controls-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.slider-arrows {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.slider-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.slider-arrow:hover {
+  transform: scale(1.1);
+  opacity: 1;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.slider-arrow:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider-arrow:disabled {
+  cursor: not-allowed;
+}
+
+/* Update keen-slider and portfolio-item styles */
+.keen-slider {
+  min-height: 450px;
+  display: flex;
+  align-items: stretch;
+  margin: 0 auto;
+}
+
+.portfolio-item {
+  height: 450px;
   display: flex;
   flex-direction: column;
-}
-
-.title, .subtitle {
-  transition: color 0.5s;
-}
-
-/* Contenedor scrollable horizontal */
-.portfolio-horizontal-scroll {
-  width: 100%;
-  position: relative;
-  padding-bottom: 30px; /* Espacio para el indicador de scroll */
-}
-
-.portfolio-inner {
-  display: flex;
-  overflow-x: auto;
-  padding: 20px 0;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch; /* Para dispositivos iOS */
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-color, rgba(255, 255, 255, 0.3)) transparent;
-  gap: 25px; /* Espacio entre proyectos */
-}
-
-/* Ocultar la barra de desplazamiento en Chrome/Safari */
-.portfolio-inner::-webkit-scrollbar {
-  height: 6px;
-}
-
-.portfolio-inner::-webkit-scrollbar-thumb {
-  background-color: var(--scroll-color, rgba(255, 255, 255, 0.3));
-  border-radius: 6px;
-}
-
-.portfolio-inner::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Elementos de portfolio */
-.portfolio-item {
-  min-width: 300px;
-  width: 300px;
-  flex-shrink: 0;
-  transition: transform 0.3s;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
   backdrop-filter: blur(5px);
   border-radius: 8px;
+  padding: 0 10px;
 }
 
-.portfolio-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilo de imagen */
+/* Image and content styles */
 .image {
+  flex: 0 0 auto;
   width: 100%;
   border-radius: 6px;
   overflow: hidden;
@@ -216,50 +341,27 @@ section {
   transition: transform 0.3s;
 }
 
+.project-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-info a.button {
+  margin-top: auto;
+}
+
+/* Hover effects */
+.portfolio-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
 .portfolio-item:hover .image img {
   transform: scale(1.05);
 }
 
-/* Información del proyecto */
-.project-info {
-  padding: 10px 0;
-  text-align: left;
-}
-
-.project-brief {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: 10px;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-/* Indicador de scroll */
-.scroll-indicator {
-  position: absolute;
-  bottom: 0;
-  right: 20px;
-  font-size: 0.9rem;
-  opacity: 0.7;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.7; }
-  50% { opacity: 0.3; }
-  100% { opacity: 0.7; }
-}
-
-/* Loader styles */
-.loader-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-}
-
+/* Loader styling */
 .loader {
   width: 50px;
   height: 50px;
@@ -270,26 +372,37 @@ section {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Responsive para pantallas más pequeñas */
+/* Responsive adjustments */
 @media screen and (max-width: 768px) {
-  .portfolio-item {
-    min-width: 250px;
-    width: 250px;
-  }
-
   .content {
-    padding: 10px;
+    padding: 1rem;
   }
 
-  .title.is-1 {
-    font-size: 2rem;
+  .portfolio-slider-container {
+    padding: 0 30px;
   }
 
-  .subtitle.is-4 {
-    font-size: 1.2rem;
+  .portfolio-item {
+    height: 400px;
+  }
+
+  .slider-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .slider-arrow {
+    width: 50px;
+    height: 50px;
+    font-size: 1.4rem;
   }
 }
 </style>

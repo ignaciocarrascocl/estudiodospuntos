@@ -47,8 +47,8 @@ export default function useLogoPosition(logoContainer, logoRef, isInCorner) {
       logoContainer.value.style.height = 'auto'
     } else {
       // Position in corner
-      logoContainer.value.style.top = '20px'
-      logoContainer.value.style.left = '20px'
+      logoContainer.value.style.top = '5px'
+      logoContainer.value.style.left = '5px'
       logoContainer.value.style.transform = 'none'
 
       // Set corner size for container
@@ -79,8 +79,8 @@ export default function useLogoPosition(logoContainer, logoRef, isInCorner) {
     tl.to(
       logoContainer.value,
       {
-        top: '20px',
-        left: '20px',
+        top: '5px',
+        left: '5px',
         transform: 'none',
         width: sizes.corner,
         duration: 0.6,

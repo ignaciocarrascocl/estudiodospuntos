@@ -1,0 +1,91 @@
+/* Reset Bulma's CSS variables for titles and subtitles */
+.title,
+.subtitle {
+  /* Reset all Bulma CSS variables */
+  --bulma-title-color: inherit !important;
+  --bulma-subtitle-color: inherit !important;
+  --bulma-text-strong: inherit !important;
+  --bulma-text: inherit !important;
+
+  /* Direct color property with !important */
+  color: inherit !important;
+
+  /* Maintain other styles that you want to keep */
+  --bulma-title-family: false;
+  --bulma-title-size: var(--bulma-size-3);
+  --bulma-title-weight: var(--bulma-weight-extrabold);
+  --bulma-title-line-height: 1.125;
+  --bulma-title-strong-weight: inherit;
+  --bulma-title-sub-size: 0.75em;
+  --bulma-title-sup-size: 0.75em;
+  --bulma-subtitle-family: false;
+  --bulma-subtitle-size: var(--bulma-size-5);
+  --bulma-subtitle-weight: var(--bulma-weight-normal);
+  --bulma-subtitle-line-height: 1.25;
+  --bulma-subtitle-strong-weight: var(--bulma-weight-semibold);
+}
+
+/* Extra strong override for elements with inline style attributes */
+.title[style*='color'],
+.subtitle[style*='color'],
+h1[style*='color'],
+h2[style*='color'],
+h3[style*='color'],
+p[style*='color'] {
+  color: var(--inline-text-color, currentColor) !important;
+}
+
+/* Ensure that inline styles with color are picked up and applied */
+[style*='color'] {
+  --inline-text-color: currentColor;
+}
+
+/* Ensure dynamic buttons work as expected */
+.button[style*='background'] {
+  background-color: var(--dynamic-button-bg, inherit) !important;
+}
+
+.button[style*='color'] {
+  color: var(--dynamic-button-text, inherit) !important;
+}
+
+/* Additional overrides for specific components */
+#portfolio .title,
+#portfolio .subtitle,
+#portfolio h1,
+#portfolio h2,
+#portfolio h3,
+#portfolio p {
+  color: var(--section-text-color, inherit) !important;
+}
+
+/* Reset some of Bulma's default behaviors */
+.has-text-centered {
+  text-align: center !important;
+}
+
+/* Reset Bulma's CSS variables for box component */
+.box {
+  /* Override box variables */
+  --bulma-box-background-color: transparent !important;
+  --bulma-box-color: inherit !important;
+  --bulma-box-radius: var(--bulma-radius-large);
+  --bulma-box-shadow: var(--bulma-shadow);
+  --bulma-box-padding: 1.25rem;
+
+  /* Direct property overrides */
+  background-color: transparent !important;
+  color: inherit !important;
+
+  /* If you want to preserve shadows and borders, keep these */
+  border-radius: var(--bulma-box-radius);
+  box-shadow: var(--bulma-box-shadow);
+  display: block;
+  padding: var(--bulma-box-padding);
+}
+
+/* Add a specific override for portfolio items */
+.light-card {
+  /* Or use your has-background-opacity class value */
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
