@@ -18,13 +18,6 @@
                 :accentColor="sectionStyle.color" icon="bi-palette-fill" />
             </div>
 
-            <!-- Service 2: Diseño de Espacios -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Diseño de Espacios y Señalización"
-                description="Desarrollamos soluciones de señalética integral para tus espacios, creando entornos profesionales, funcionales y que refuercen tu imagen de marca."
-                :accentColor="sectionStyle.color" icon="bi-building" />
-            </div>
-
             <!-- Service 3: Materiales Corporativos -->
             <div class="keen-slider__slide service-slide">
               <ServiceCard title="Materiales Corporativos de Alto Impacto"
