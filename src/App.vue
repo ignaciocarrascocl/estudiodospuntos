@@ -51,75 +51,61 @@ export default {
       return window.innerHeight;
     };
 
-    // Replace your existing updateSectionPositions function
     const updateSectionPositions = () => {
+      // Asegurarse de que las posiciones estén actualizadas incluso después de cambios de orientación
       if (!sectionsContainer.value) return;
 
       const height = getVisibleHeight();
 
-      // Set explicit heights on each section
+      // Aplicar altura a cada sección
       const sections = sectionsContainer.value.children;
       for (let i = 0; i < sections.length; i++) {
-        gsap.set(sections[i], {
-          height: height,
-          minHeight: height,
-          maxHeight: height,
-          overflow: 'hidden'
-        });
+        sections[i].style.height = `${height}px`;
       }
 
-      // Force layout calculation
-      document.body.offsetHeight;
-
-      // Update container position with explicit calculation
-      const targetY = -((currentSection.value - 1) * height);
+      // Actualizar posición actual
       gsap.set(sectionsContainer.value, {
-        y: targetY,
-        height: height * totalSections
+        y: -((currentSection.value - 1) * height)
       });
-    }
+    };
 
-    // Update your scrollToSection function
     const scrollToSection = (sectionNumber) => {
       if (isScrolling.value) return;
 
       isScrolling.value = true;
       currentSection.value = sectionNumber;
 
-      // Dispatch section change event
+      // Dispatch an event that the logo can listen to
       window.dispatchEvent(new CustomEvent('section-change', {
         detail: { section: sectionNumber }
       }));
 
-      // Update positions and calculate exact height
-      updateSectionPositions();
+      // Obtener altura actualizada
       const height = getVisibleHeight();
 
-      // Calculate exact target position
-      const targetY = -((sectionNumber - 1) * height);
-
-      // Start animation with proper easing and callbacks
+      // Use GSAP ScrollTo to create a scrolling effect with calculated height
       gsap.to(sectionsContainer.value, {
         duration: 1,
-        y: targetY,
+        y: -((sectionNumber - 1) * height),
         ease: "power2.inOut",
-        onUpdate: () => {
-          // Force each frame to update correctly
-          document.body.offsetHeight;
-        },
         onComplete: () => {
-          // Set final position explicitly to avoid fractional pixel issues
-          gsap.set(sectionsContainer.value, { y: targetY });
-
-          // Update URL
+          // Update URL with the section name instead of number
           const sectionNames = ['home', 'portfolio', 'services', 'contact'];
           history.pushState(null, null, `#${sectionNames[sectionNumber - 1]}`);
-
-          // Allow scrolling again
           isScrolling.value = false;
+
+          // Verificar si la posición es correcta y ajustar si es necesario
+          nextTick(() => {
+            const expectedY = -((sectionNumber - 1) * getVisibleHeight());
+            const currentY = gsap.getProperty(sectionsContainer.value, "y");
+
+            if (Math.abs(expectedY - currentY) > 5) {
+              gsap.set(sectionsContainer.value, { y: expectedY });
+            }
+          });
         }
       });
-    }
+    };
 
     const handleWheel = (e) => {
       e.preventDefault();
@@ -156,39 +142,30 @@ export default {
       e.preventDefault();
     };
 
-    // Improve your handleTouchEnd function
     const handleTouchEnd = (e) => {
       if (isScrolling.value) return;
 
       touchEndY = e.changedTouches[0].clientY;
       const touchDistance = touchEndY - touchStartY;
 
+      // Evitar múltiples eventos de deslizamiento consecutivos
       if (touchTimeout) {
         clearTimeout(touchTimeout);
       }
 
-      // Clear any lingering animations
-      gsap.killTweensOf(sectionsContainer.value);
-
       touchTimeout = setTimeout(() => {
-        // If swipe distance is sufficient
+        // Si el deslizamiento fue lo suficientemente largo
         if (Math.abs(touchDistance) > minTouchDistance) {
           if (touchDistance < 0 && currentSection.value < totalSections) {
-            // Swipe up - go to next section
+            // Deslizamiento hacia arriba, mostrar siguiente sección
             scrollToSection(currentSection.value + 1);
           } else if (touchDistance > 0 && currentSection.value > 1) {
-            // Swipe down - go to previous section
+            // Deslizamiento hacia abajo, mostrar sección anterior
             scrollToSection(currentSection.value - 1);
-          } else {
-            // If at the edge but still swiping, reinforce current position
-            updateSectionPositions();
           }
-        } else {
-          // Small movement - make sure we're properly positioned
-          updateSectionPositions();
         }
       }, 50);
-    }
+    };
 
     const handleResize = () => {
       // Esperar por un momento para que cualquier cambio de UI se estabilice
@@ -212,28 +189,9 @@ export default {
       window.addEventListener('orientationchange', () => {
         if (orientationTimeout) clearTimeout(orientationTimeout);
 
-        // Immediately hide all content during transition
-        if (sectionsContainer.value) {
-          gsap.set(sectionsContainer.value, { autoAlpha: 0.5 });
-        }
-
-        // Wait for orientation change to complete
+        // Dar más tiempo para que se complete el cambio de orientación
         orientationTimeout = setTimeout(() => {
-          // Update visible height calculation
-          const height = getVisibleHeight();
-
-          // Force browser to recognize new dimensions
-          window.scrollTo(0, 0);
-          document.body.offsetHeight;
-
-          // Update positions with new height
           updateSectionPositions();
-
-          // Fade back in
-          gsap.to(sectionsContainer.value, {
-            autoAlpha: 1,
-            duration: 0.3
-          });
         }, 300);
       });
 
@@ -297,8 +255,6 @@ body {
   overflow: hidden !important;
   /* Important to override Bulma */
   width: 100%;
-  position: fixed;
-  /* Prevent body scroll on mobile */
 }
 
 /* App container styles */
@@ -306,47 +262,12 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  position: fixed;
-  /* Fix the container position */
-  top: 0;
-  left: 0;
 }
 
 /* Section container styles */
 .sections-container {
   width: 100%;
-  position: absolute;
-  /* Change to absolute positioning */
-  top: 0;
-  left: 0;
-  height: 100vh;
-  /* Explicit height */
-  will-change: transform;
-  /* Optimize for animations */
-  transform: translateZ(0);
-  /* Force GPU acceleration */
-}
-
-/* Individual section styling */
-.sections-container>* {
-  width: 100%;
-  height: 100vh !important;
-  /* Force full height */
-  min-height: 100vh !important;
-  max-height: 100vh !important;
   position: relative;
-  overflow: hidden;
-  /* Hide overflow content */
-  display: flex;
-  flex-direction: column;
-}
-
-/* iOS Safari specific fix */
-@supports (-webkit-touch-callout: none) {
-  .sections-container>* {
-    /* iOS devices need special height handling */
-    height: -webkit-fill-available !important;
-  }
 }
 
 /* Make sure Bulma doesn't limit our app width */
