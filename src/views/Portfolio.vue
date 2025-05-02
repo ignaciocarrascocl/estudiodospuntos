@@ -53,12 +53,11 @@
                 <i class="bi bi-chevron-left"></i>
               </button>
 
-              <button class="slider-arrow" @click="nextSlide"
-                :disabled="currentSlideIndex === portfolioItems.length - 1" :style="{
-                  color: sectionStyle.backgroundColor,
-                  backgroundColor: sectionStyle.color,
-                  opacity: currentSlideIndex === portfolioItems.length - 1 ? '0.5' : '1'
-                }">
+              <button class="slider-arrow" @click="nextSlide" :disabled="currentSlideIndex >= maxSlideIndex" :style="{
+                color: sectionStyle.backgroundColor,
+                backgroundColor: sectionStyle.color,
+                opacity: currentSlideIndex >= maxSlideIndex ? '0.5' : '1'
+              }">
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
@@ -70,7 +69,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue'; // Add computed here
 import { getPortfolioItems } from '@/services/contentfulService';
 import KeenSlider from 'keen-slider';
 import 'keen-slider/keen-slider.min.css';
@@ -204,6 +203,19 @@ export default {
       }
     };
 
+    // Add this computed property to calculate the maximum slide index
+    const maxSlideIndex = computed(() => {
+      if (!sliderInstance.value) return 0;
+
+      try {
+        // This gets the actual maximum index from the slider instance
+        return sliderInstance.value.track.details.maxIdx || (portfolioItems.value.length - 1);
+      } catch (err) {
+        console.error('Error calculating maxSlideIndex:', err);
+        return portfolioItems.value.length - 1;
+      }
+    });
+
     onMounted(() => {
       window.addEventListener('theme-change', handleThemeChange);
       window.addEventListener('resize', handleResize);
@@ -235,7 +247,8 @@ export default {
       container,
       currentSlideIndex,
       nextSlide,
-      prevSlide
+      prevSlide,
+      maxSlideIndex // Add this line
     };
   }
 }

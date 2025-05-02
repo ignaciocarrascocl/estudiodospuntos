@@ -58,10 +58,10 @@
                 <i class="bi bi-chevron-left"></i>
               </button>
 
-              <button class="slider-arrow" @click="nextSlide" :disabled="currentSlideIndex === totalSlides - 1" :style="{
+              <button class="slider-arrow" @click="nextSlide" :disabled="currentSlideIndex >= maxSlideIndex" :style="{
                 color: sectionStyle.backgroundColor,
                 backgroundColor: sectionStyle.color,
-                opacity: currentSlideIndex === totalSlides - 1 ? '0.5' : '1'
+                opacity: currentSlideIndex >= maxSlideIndex ? '0.5' : '1'
               }">
                 <i class="bi bi-chevron-right"></i>
               </button>
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import ServiceCard from '@/components/ServiceCard.vue';
 import KeenSlider from 'keen-slider';
 import 'keen-slider/keen-slider.min.css';
@@ -96,6 +96,19 @@ export default {
     const container = ref(null);
     const currentSlideIndex = ref(0);
     const totalSlides = ref(6); // Total number of service cards
+
+    // Compute the maximum slide index based on slider instance
+    const maxSlideIndex = computed(() => {
+      if (!sliderInstance.value) return 0;
+
+      try {
+        // This returns the maximum slide index that can be navigated to
+        return sliderInstance.value.track.details.maxIdx || (totalSlides.value - 1);
+      } catch (err) {
+        console.error('Error calculating maxSlideIndex:', err);
+        return totalSlides.value - 1;
+      }
+    });
 
     // Initialize the Keen Slider
     const initializeSlider = () => {
@@ -213,7 +226,8 @@ export default {
       currentSlideIndex,
       totalSlides,
       nextSlide,
-      prevSlide
+      prevSlide,
+      maxSlideIndex // Add this to return
     };
   }
 }
