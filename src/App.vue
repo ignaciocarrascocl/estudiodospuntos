@@ -2,7 +2,7 @@
   <div class="app-container">
     <!-- Navigation dots -->
     <div class="navigation-dots">
-      <button v-for="n in 4" :key="n" @click="scrollToSection(n)" :class="{ active: currentSection === n }"
+      <button v-for="n in 6" :key="n" @click="scrollToSection(n)" :class="{ active: currentSection === n }"
         class="nav-dot"></button>
     </div>
 
@@ -21,9 +21,19 @@
         <Portfolio />
       </section>
 
+      <!-- Breakout section with component -->
+      <section id="breakout" class="section">
+        <Breakout />
+      </section>
+
       <!-- Services section with component -->
       <section id="services" class="section">
         <Services />
+      </section>
+
+      <!-- Playground section with component -->
+      <section id="playground" class="section">
+        <Playground />
       </section>
 
       <!-- Contact section with component -->
@@ -38,7 +48,9 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import Home from '@/views/Home.vue';
 import Portfolio from '@/views/Portfolio.vue';
+import Breakout from '@/views/Breakout.vue';
 import Services from '@/views/Services.vue';
+import Playground from '@/views/Playground.vue';
 import Contact from '@/views/Contact.vue';
 import FloatingMenu from '@/components/FloatingMenu.vue';
 
@@ -46,7 +58,9 @@ export default {
   components: {
     Home,
     Portfolio,
+    Breakout,
     Services,
+    Playground,
     Contact,
     FloatingMenu
   },
@@ -71,7 +85,7 @@ export default {
       currentSection.value = sectionNumber;
 
       // Update URL hash without triggering scroll
-      const sectionIds = ['home', 'portfolio', 'services', 'contact'];
+      const sectionIds = ['home', 'portfolio', 'breakout', 'services', 'playground', 'contact'];
       history.pushState(null, null, `#${sectionIds[sectionNumber - 1]}`);
 
       // Calculate the target scroll position
@@ -127,7 +141,7 @@ export default {
         // Determine scroll direction
         const direction = e.deltaY > 0 ? 1 : -1;
 
-        if (direction > 0 && currentSection.value < 4) {
+        if (direction > 0 && currentSection.value < 6) {
           // Scroll down
           scrollToSection(currentSection.value + 1);
         } else if (direction < 0 && currentSection.value > 1) {
@@ -162,7 +176,7 @@ export default {
             scrollToSection(currentSection.value - 1);
           }
           // Swipe up
-          else if (touchDistance < 0 && currentSection.value < 4) {
+          else if (touchDistance < 0 && currentSection.value < 6) {
             scrollToSection(currentSection.value + 1);
           }
         }
@@ -172,7 +186,7 @@ export default {
     // Check URL hash on load
     const checkHash = () => {
       const hash = window.location.hash.replace('#', '');
-      const sectionIds = ['home', 'portfolio', 'services', 'contact'];
+      const sectionIds = ['home', 'portfolio', 'breakout', 'services', 'playground', 'contact'];
       const index = sectionIds.indexOf(hash);
 
       if (index !== -1) {
