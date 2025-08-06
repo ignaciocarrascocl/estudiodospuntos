@@ -73,24 +73,12 @@ export default {
           const dateA = new Date(a.sys?.updatedAt || a.sys?.createdAt || a.updatedAt || a.createdAt || a.publishedAt || 0);
           const dateB = new Date(b.sys?.updatedAt || b.sys?.createdAt || b.updatedAt || b.createdAt || b.publishedAt || 0);
 
-          console.log('Sorting:', {
-            projectA: a.title,
-            dateA: dateA.toISOString(),
-            projectB: b.title,
-            dateB: dateB.toISOString(),
-            comparison: dateB - dateA
-          });
-
           return dateB - dateA; // Descending order (newest first)
         });
 
         // Force re-render by creating new array
         portfolioItems.value = [...portfolioItems.value];
 
-        console.log('Final sorted order:', portfolioItems.value.map(item => ({
-          title: item.title,
-          date: new Date(item.sys?.updatedAt || item.sys?.createdAt || 0).toISOString()
-        })));
 
         if (portfolioItems.value.length === 0) {
           error.value = "No se encontraron proyectos. ¡Agrega algunos en Contentful!";

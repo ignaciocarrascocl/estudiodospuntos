@@ -33,7 +33,7 @@
 <style scoped>
 .floating-menu {
   position: fixed;
-  bottom: 30px;
+  top: 30px;
   right: 30px;
   z-index: 9999;
   /* Increase z-index to be above fullPage.js elements */
@@ -127,7 +127,7 @@
 /* Keep your existing menu items styles */
 .menu-items {
   position: absolute;
-  bottom: 75px;
+  top: 75px;
   right: 10px;
   display: flex;
   flex-direction: column;
@@ -155,7 +155,7 @@
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   opacity: 0;
-  transform: translateX(50px);
+  transform: translateY(-20px) translateX(50px);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -182,7 +182,7 @@
 
 .menu-items a:hover {
   background: rgba(0, 0, 0, 0.95);
-  transform: translateX(-5px) scale(1.05);
+  transform: translateY(0) translateX(-5px) scale(1.05);
 }
 
 .menu-items a.active {
@@ -285,14 +285,14 @@ export default {
         return {
           ...baseStyle,
           opacity: '1',
-          transform: 'translateX(0)',
+          transform: 'translateY(0) translateX(0)',
           transition: `all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${animationDelay * index}s`
         };
       } else {
         return {
           ...baseStyle,
           opacity: '0',
-          transform: 'translateX(50px)',
+          transform: 'translateY(-20px) translateX(50px)',
           transition: `all 0.3s ease ${0.1 * (3 - index)}s`
         };
       }

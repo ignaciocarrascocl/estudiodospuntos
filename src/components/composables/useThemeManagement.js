@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import {
   validColorThemes,
   dispatchThemeChange,
@@ -16,7 +16,6 @@ export default function useThemeManagement(isLogoA) {
 
   // Initialize section themes based on current logo
   const initializeSectionThemes = () => {
-    console.log('Initializing section themes for logo version:', isLogoA.value ? 'A' : 'B')
 
     // Set each section to the appropriate theme based on current logo
     for (let i = 1; i <= 4; i++) {
@@ -28,12 +27,11 @@ export default function useThemeManagement(isLogoA) {
       dispatchThemeChange(i, validColorThemes[themeIndex])
     }
 
-    console.log('Initialized fixed themes:', sectionThemes.value)
   }
 
   // Update all section themes to match current logo
   const updateThemesForLogo = () => {
-    console.log('Updating themes for logo version:', isLogoA.value ? 'A' : 'B')
+
 
     // Update each section to the appropriate theme based on current logo
     for (let i = 1; i <= 4; i++) {
@@ -43,14 +41,14 @@ export default function useThemeManagement(isLogoA) {
       if (sectionThemes.value[i] !== themeIndex) {
         sectionThemes.value[i] = themeIndex
         dispatchThemeChange(i, validColorThemes[themeIndex])
-        console.log(`Section ${i} theme updated to:`, validColorThemes[themeIndex].background)
+
       }
     }
   }
 
   // Toggle theme color for the current section based on current logo
   const changeThemeColor = (currentSection) => {
-    console.log('Toggling theme for section:', currentSection)
+
 
     // Toggle logo first
     isLogoA.value = !isLogoA.value
@@ -64,17 +62,9 @@ export default function useThemeManagement(isLogoA) {
 
     // Dispatch event
     dispatchThemeChange(currentSection, validColorThemes[themeIndex])
-    console.log('Changed theme to:', validColorThemes[themeIndex].background)
+
   }
 
-  // Watch for logo changes to ensure theme compatibility
-  watch(
-    () => isLogoA.value,
-    (newValue) => {
-      console.log('Logo changed to version:', newValue ? 'A' : 'B')
-      updateThemesForLogo()
-    },
-  )
 
   return {
     sectionThemes,
