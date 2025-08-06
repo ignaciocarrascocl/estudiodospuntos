@@ -41,7 +41,7 @@ export async function getPortfolioItems() {
 
     const response = await client.getEntries({
       content_type: 'portfafolio',
-      order: 'sys.createdAt'
+      order: '-sys.updatedAt' // Cambiar a orden descendente por fecha de actualización
     });
 
     return response.items.map(item => ({
@@ -54,7 +54,8 @@ export async function getPortfolioItems() {
       otherImages: item.fields.otherImages
         ? item.fields.otherImages.map(img => `https:${img.fields.file.url}`)
         : [],
-      url: item.fields.url || null
+      url: item.fields.url || null,
+      sys: item.sys // Incluir sys para debugging
     }));
   } catch (error) {
     console.error('Error al obtener datos de Contentful:', error);

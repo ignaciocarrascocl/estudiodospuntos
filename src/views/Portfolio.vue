@@ -67,13 +67,30 @@ export default {
         error.value = null;
         const items = await getPortfolioItems();
 
-        // Sort by creation date (oldest first) - más antiguos primero
+        // Sort by update date (newest first) - más recientes primero
         portfolioItems.value = items.sort((a, b) => {
-          // Try multiple date fields to ensure compatibility
-          const dateA = new Date(a.sys?.createdAt || a.createdAt || a.publishedAt || 0);
-          const dateB = new Date(b.sys?.createdAt || b.createdAt || b.publishedAt || 0);
-          return dateA - dateB; // Ascending order (oldest first)
+          // Use updatedAt first, then createdAt as fallback
+          const dateA = new Date(a.sys?.updatedAt || a.sys?.createdAt || a.updatedAt || a.createdAt || a.publishedAt || 0);
+          const dateB = new Date(b.sys?.updatedAt || b.sys?.createdAt || b.updatedAt || b.createdAt || b.publishedAt || 0);
+
+          console.log('Sorting:', {
+            projectA: a.title,
+            dateA: dateA.toISOString(),
+            projectB: b.title,
+            dateB: dateB.toISOString(),
+            comparison: dateB - dateA
+          });
+
+          return dateB - dateA; // Descending order (newest first)
         });
+
+        // Force re-render by creating new array
+        portfolioItems.value = [...portfolioItems.value];
+
+        console.log('Final sorted order:', portfolioItems.value.map(item => ({
+          title: item.title,
+          date: new Date(item.sys?.updatedAt || item.sys?.createdAt || 0).toISOString()
+        })));
 
         if (portfolioItems.value.length === 0) {
           error.value = "No se encontraron proyectos. ¡Agrega algunos en Contentful!";
