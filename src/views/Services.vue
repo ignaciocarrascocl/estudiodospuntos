@@ -1,70 +1,139 @@
 <template>
-  <!-- Remove the outer section tag - fullPage.js already provides a section container -->
   <div class="services-content" :style="sectionStyle">
     <div class="container">
-      <div class="content px-4 py-5">
-        <h1 class="text-4xl font-bold text-center mb-3" :style="{ color: sectionStyle.color }">Servicios</h1>
-        <p class="text-xl text-center mb-5" :style="{ color: sectionStyle.color }">
-          Impulsamos tu crecimiento con diseño estratégico y comunicación a medida.
+      <div class="content px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-3" :style="{ color: sectionStyle.color }">
+          Impulsamos tu Marca al Siguiente Nivel
+        </h1>
+        <p class="text-xl text-center mb-8" :style="{ color: sectionStyle.color }">
+          En Estudio Dos Puntos, transformamos tu presencia digital con estrategias creativas y resultados medibles.
         </p>
 
-        <!-- Services slider using keen-slider -->
-        <div class="services-slider-container">
-          <div ref="container" class="keen-slider">
-            <!-- Service 1: Identidad de Marca -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Identidad de Marca Estratégica"
-                description="Creamos o revitalizamos la identidad visual de tu marca, desde el logotipo hasta la paleta de colores y la tipografía, asegurando que refleje tus valores y atraiga a tu público objetivo de alta rentabilidad."
-                :accentColor="sectionStyle.color" icon="bi-palette-fill" />
+        <!-- Services Grid -->
+        <div class="services-grid">
+          <!-- Service 1: Diseño de Marca -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-palette-fill"></i>
             </div>
+            <h3 class="service-title">
+              Diseño de Marca (Branding)
+            </h3>
+            <p class="service-subtitle">
+              Creamos la identidad visual completa de tu negocio.
+            </p>
+            <div class="service-content">
 
-            <!-- Service 3: Materiales Corporativos -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Materiales Corporativos de Alto Impacto"
-                description="Diseñamos y producimos materiales corporativos que transmiten calidad y coherencia con tu marca, desde tarjetas de presentación y papelería hasta presentaciones y folletos."
-                :accentColor="sectionStyle.color" icon="bi-file-earmark-text" />
-            </div>
-
-            <!-- Service 4: Desarrollo Web -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Desarrollo de Plataformas Web Modernas"
-                description="Desarrollamos sitios web a medida, optimizados para la experiencia del usuario, la accesibilidad y el rendimiento, convirtiéndose en una herramienta clave para la captación y fidelización de clientes."
-                :accentColor="sectionStyle.color" icon="bi-laptop" />
-            </div>
-
-            <!-- Service 5: Presencia Online -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Gestión de Presencia y Reputación Online"
-                description="Creamos y gestionamos estrategias de contenido para redes sociales, fortaleciendo tu presencia online, interactuando con tu audiencia y construyendo una reputación positiva."
-                :accentColor="sectionStyle.color" icon="bi-share-fill" />
-            </div>
-
-            <!-- Service 6: Marketing de Contenidos -->
-            <div class="keen-slider__slide service-slide">
-              <ServiceCard title="Marketing de Contenidos de Valor"
-                description="Desarrollamos contenido relevante y de valor para tu audiencia (artículos, guías, ebooks, etc.) que atrae, informa y posiciona a tu empresa como experta en su sector."
-                :accentColor="sectionStyle.color" icon="bi-graph-up-arrow" />
+              <ul class="service-list">
+                <li>Diseño de logotipo y sus variaciones</li>
+                <li>Definición de paleta de colores y tipografías</li>
+                <li>Manual de marca con guías de uso</li>
+              </ul>
             </div>
           </div>
 
-          <!-- Navigation buttons -->
-          <div class="slider-controls-container">
-            <div class="slider-arrows">
-              <button class="slider-arrow" @click="prevSlide" :disabled="currentSlideIndex === 0" :style="{
-                color: sectionStyle.backgroundColor,
-                backgroundColor: sectionStyle.color,
-                opacity: currentSlideIndex === 0 ? '0.5' : '1'
-              }">
-                <i class="bi bi-chevron-left"></i>
-              </button>
+          <!-- Service 2: Creación de Páginas Web -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-laptop"></i>
+            </div>
+            <h3 class="service-title">
+              Creación de Páginas Web
+            </h3>
+            <p class="service-subtitle">
+              Diseñamos y desarrollamos sitios web modernos, rápidos y funcionales.
+            </p>
+            <div class="service-content">
 
-              <button class="slider-arrow" @click="nextSlide" :disabled="currentSlideIndex >= maxSlideIndex" :style="{
-                color: sectionStyle.backgroundColor,
-                backgroundColor: sectionStyle.color,
-                opacity: currentSlideIndex >= maxSlideIndex ? '0.5' : '1'
-              }">
-                <i class="bi bi-chevron-right"></i>
-              </button>
+              <ul class="service-list">
+                <li>Diseño UI/UX personalizado y centrado en el usuario</li>
+                <li>Desarrollo 100% responsivo (adaptable a móviles)</li>
+                <li>Optimización SEO básica para un buen posicionamiento inicial</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Service 3: Gestión de Redes Sociales -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-share-fill"></i>
+            </div>
+            <h3 class="service-title">
+              Gestión de Redes Sociales
+            </h3>
+            <p class="service-subtitle">
+              Construimos y gestionamos una comunidad activa para tu marca.
+            </p>
+            <div class="service-content">
+
+              <ul class="service-list">
+                <li>Estrategia de contenidos y comunicación</li>
+                <li>Creación de parrilla de contenidos mensual</li>
+                <li>Community Management: respondemos comentarios y mensajes</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Service 4: Publicidad Digital -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3 class="service-title">
+              Publicidad Digital (Ads)
+            </h3>
+            <p class="service-subtitle">
+              Creamos y optimizamos campañas de anuncios en Google y Meta.
+            </p>
+            <div class="service-content">
+
+              <ul class="service-list">
+                <li>Investigación de audiencias y palabras clave</li>
+                <li>Creación de textos y creatividades para anuncios</li>
+                <li>Gestión y optimización continua de las campañas</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Service 5: Diseño Gráfico Corporativo -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <h3 class="service-title">
+              Diseño Gráfico Corporativo
+            </h3>
+            <p class="service-subtitle">
+              Creamos materiales visuales que refuerzan la imagen profesional de tu empresa.
+            </p>
+            <div class="service-content">
+
+              <ul class="service-list">
+                <li>Diseño de presentaciones de alto impacto</li>
+                <li>Creación de papelería, folletos y otros elementos gráficos</li>
+                <li>Garantía de consistencia de tu marca en todos los materiales</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Service 6: Capacitación y Seguimiento -->
+          <div class="service-card" :style="{ borderColor: sectionStyle.color }">
+            <div class="service-icon">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+            <h3 class="service-title">
+              Capacitación y Seguimiento en Herramientas Digitales
+            </h3>
+            <p class="service-subtitle">
+              Te ayudamos a integrar y optimizar herramientas digitales para tu negocio.
+            </p>
+            <div class="service-content">
+
+              <ul class="service-list">
+                <li>Capacitación en el uso de herramientas de IA, CRM y otras plataformas clave</li>
+                <li>Seguimiento y soporte en la implementación de estas soluciones</li>
+                <li>Recomendaciones para mejorar la eficiencia y los procesos internos</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -74,16 +143,10 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import ServiceCard from '@/components/ServiceCard.vue';
-import KeenSlider from 'keen-slider';
-import 'keen-slider/keen-slider.min.css';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
   name: 'ServicesView',
-  components: {
-    ServiceCard
-  },
   setup() {
     // Default colors
     const sectionStyle = ref({
@@ -91,99 +154,7 @@ export default {
       color: '#FF97D6'
     });
 
-    // Create a ref for the slider
-    const sliderInstance = ref(null);
-    const container = ref(null);
-    const currentSlideIndex = ref(0);
-    const totalSlides = ref(6); // Total number of service cards
-
-    // Compute the maximum slide index based on slider instance
-    const maxSlideIndex = computed(() => {
-      if (!sliderInstance.value) return 0;
-
-      try {
-        // This returns the maximum slide index that can be navigated to
-        return sliderInstance.value.track.details.maxIdx || (totalSlides.value - 1);
-      } catch (err) {
-        console.error('Error calculating maxSlideIndex:', err);
-        return totalSlides.value - 1;
-      }
-    });
-
-    // Initialize the Keen Slider
-    const initializeSlider = () => {
-      try {
-        if (!container.value) {
-          return null;
-        }
-
-        const slidesPerView = getSlidesPerView();
-
-        // Create the Keen Slider instance
-        const keenSliderInstance = new KeenSlider(container.value, {
-          loop: false,
-          mode: "snap",
-          slides: { perView: slidesPerView, spacing: 20 },
-          created(slider) {
-            sliderInstance.value = slider;
-          },
-          slideChanged(slider) {
-            // Update the current slide index reactively
-            currentSlideIndex.value = slider.track.details.rel;
-          }
-        });
-
-        sliderInstance.value = keenSliderInstance;
-        return keenSliderInstance;
-      } catch (err) {
-        console.error('Error initializing Keen Slider:', err);
-        return null;
-      }
-    };
-
-    // Determine how many slides to show based on screen width
-    const getSlidesPerView = () => {
-      const width = window.innerWidth;
-      if (width < 768) return 1;
-      if (width < 1024) return 2;
-      return 3;
-    };
-
-    // Navigation functions
-    const nextSlide = () => {
-      if (sliderInstance.value) {
-        try {
-          sliderInstance.value.next();
-        } catch (err) {
-          console.error('Error executing next():', err);
-        }
-      }
-    };
-
-    const prevSlide = () => {
-      if (sliderInstance.value) {
-        try {
-          sliderInstance.value.prev();
-        } catch (err) {
-          console.error('Error executing prev():', err);
-        }
-      }
-    };
-
-    // Handler for section-change events (when navigating between sections)
-    // REMOVED color-changing behavior from this handler
-    const handleSectionChange = (event) => {
-      // Now we only use this handler for other section-specific logic
-      // that doesn't involve changing colors
-      if (event.detail.section === 3) {
-        // Any section-specific logic that doesn't involve colors
-        // For example, you might want to pause/resume slider animations
-        // or refresh content when returning to this section
-      }
-    };
-
     // Handler for theme-change events (when logo is clicked)
-    // This is now the ONLY place where colors should change
     const handleThemeChange = (event) => {
       // Check if this event is for this section
       if (event.detail.section === 3) {
@@ -194,176 +165,238 @@ export default {
       }
     };
 
-    // Modified handler for window resize
-    const handleResize = () => {
-      if (sliderInstance.value) {
-        try {
-          // Update slides per view on resize
-          const slidesPerView = getSlidesPerView();
-          sliderInstance.value.options.slides.perView = slidesPerView;
-          sliderInstance.value.update();
-        } catch (err) {
-          console.error('Error updating after resize:', err);
-        }
-      }
-    };
-
-    // Wait for fullPage.js to be initialized
     onMounted(() => {
-      // Listen for both section-change and theme-change events
-      window.addEventListener('section-change', handleSectionChange);
       window.addEventListener('theme-change', handleThemeChange);
-      window.addEventListener('resize', handleResize);
-
-      // Longer delay to ensure fullPage.js is initialized first
-      setTimeout(() => {
-        initializeSlider();
-      }, 500); // Increased delay
     });
 
     onUnmounted(() => {
-      // Clean up both event listeners
-      window.removeEventListener('section-change', handleSectionChange);
       window.removeEventListener('theme-change', handleThemeChange);
-      window.removeEventListener('resize', handleResize);
-
-      // Destroy slider instance
-      if (sliderInstance.value) {
-        try {
-          sliderInstance.value.destroy();
-        } catch (err) {
-          console.error('Error destroying slider:', err);
-        }
-      }
     });
 
     return {
-      sectionStyle,
-      container,
-      currentSlideIndex,
-      totalSlides,
-      nextSlide,
-      prevSlide,
-      maxSlideIndex
+      sectionStyle
     };
   }
 }
 </script>
 
 <style scoped>
-/* Replace the section styling */
 .services-content {
-  width: 100%;
-  height: 100%;
+  min-height: 100vh;
   transition: background-color 0.5s, color 0.5s;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  /* Important - never let content overflow */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2rem 0;
 }
 
-/* Override Bulma title colors to respect our dynamic theming */
-.title,
-.subtitle {
-  color: inherit !important;
-  transition: color 0.5s;
-}
-
-/* Services slider container */
-.services-slider-container {
-  position: relative;
-  width: 100%;
-  padding: 0 40px;
-  max-width: 100%;
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 3rem;
   margin: 0 auto;
+  padding-top: 2rem;
 }
 
-/* Make each slide take consistent height without overflowing */
-.service-slide {
-  min-height: 350px;
-  max-height: 450px;
-  padding: 0 10px;
+.service-card {
+  background: #ffffff;
+  border: none;
+  padding: 3.5rem 2.5rem 2.5rem 2.5rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s ease;
+  position: relative;
+  margin-top: 2rem;
 }
 
-/* Make the ServiceCard take full height of its container */
-.service-slide>>>.service-card {
-  height: 100%;
+.service-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
 }
 
-/* Slider controls */
-.slider-controls-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-  width: 100%;
-}
-
-.slider-arrows {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.slider-arrow {
+.service-icon {
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5rem;
+  height: 5rem;
+  background: #ffffff;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 2.5rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.4s ease;
+  border: 3px solid #f8f9fa;
+  color: rgb(48, 48, 208);
+}
+
+.service-card:hover .service-icon {
+  transform: translateX(-50%) scale(1.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+}
+
+.service-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+  color: #000000;
+  line-height: 1.3;
+}
+
+.service-subtitle {
   font-size: 1.25rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 500;
+  color: #000000;
+  line-height: 1.4;
 }
 
-.slider-arrow:hover {
-  transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+.service-content {
+  color: #2d3748;
 }
 
-.slider-arrow:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.content-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem 0;
+  transition: color 0.3s ease;
+  color: rgb(48, 48, 208);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.slider-arrow:disabled {
-  cursor: not-allowed;
+.content-section-title i {
+  font-size: 1rem;
+  color: rgb(48, 48, 208);
 }
 
-/* Adjust for mobile */
+.service-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.service-list li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 2rem;
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.service-list li:before {
+  content: "●";
+  font-weight: bold;
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.service-content p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.service-content strong {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 1024px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    gap: 2.5rem;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .services-content {
-    padding-top: 1rem;
+    padding: 8rem 0;
   }
 
+  .services-grid {
+    gap: 3.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .service-card {
+    padding: 3rem 2rem 2rem 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .service-icon {
+    width: 4rem;
+    height: 4rem;
+    font-size: 2rem;
+    top: -2rem;
+  }
+
+  .service-title {
+    font-size: 1.5rem;
+  }
+
+  .service-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .content-section-title {
+    font-size: 1rem;
+  }
+
+  .service-list li {
+    font-size: 0.95rem;
+  }
+
+  .service-content p {
+    font-size: 0.95rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
   .content {
     padding: 1rem !important;
   }
 
-  .services-slider-container {
-    padding: 0 30px;
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
-  .service-slide {
-    min-height: 300px;
-    max-height: 400px;
+  .service-card {
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+    margin-top: 1rem;
   }
 
-  .slider-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
+  .service-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.8rem;
+    top: -1.75rem;
   }
-}
 
-@media screen and (min-width: 1200px) {
-  .slider-arrow {
-    width: 50px;
-    height: 50px;
-    font-size: 1.4rem;
+  .service-title {
+    font-size: 1.3rem;
+  }
+
+  .service-subtitle {
+    font-size: 1rem;
   }
 }
 </style>
